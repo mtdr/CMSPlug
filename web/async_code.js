@@ -205,7 +205,7 @@ function CheckForPlugIn_Async() {
 // //cadesplugin.async_spawn
 // }
 
-function* my_getCertList(res) {
+function my_getCertList(res) {
     cadesplugin.async_spawn(function *() {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
@@ -285,17 +285,7 @@ function* my_getCertList(res) {
 
 function testY() {
     var certList = [];
-    // let main = async ()=> {
-    //     await my_getCertList(certList);
-    // };
-
-    // my_getCertList(certList).then(function (res) {
-    //     console.log(res);
-    // });
     var a = my_getCertList(certList);
-    a.then(function (re) {
-        alert(re);
-    });
     return certList;
 
 }
