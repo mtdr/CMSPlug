@@ -206,7 +206,7 @@ function CheckForPlugIn_Async() {
 // }
 
 function* my_getCertList(res) {
-    return yield cadesplugin.async_spawn(function *(resolve, rej) {
+    cadesplugin.async_spawn(function *() {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
             if (!oStore) {
@@ -267,17 +267,18 @@ function* my_getCertList(res) {
                 alert("Ошибка при получении свойства SubjectName: " + cadesplugin.getLastError(ex));
             }
             try {
-                oOpt.value = yield cert.Thumbprint;
+                let certPrint = yield cert.Thumbprint;
+                oOpt.value = certPrint;
+                res.push(certPrint);
             }
             catch (ex) {
                 alert("Ошибка при получении свойства Thumbprint: " + cadesplugin.getLastError(ex));
             }
 
-            res.push(oOpt);
+            // res.push(oOpt);
         }
 
         yield oStore.Close();
-        resolve(res);
     });//cadesplugin.async_spawn
 }
 
