@@ -1,0 +1,158 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Пример использования КриптоПро ЭЦП Browser plug-in</title>
+    <meta name="robots" content="noindex, nofollow" charset="utf-8" />
+    <link href="demopage.css" rel="stylesheet" type="text/css" />
+    <script language="javascript" src="js/hw.js"></script>
+    <script language="javascript" src="js/es6-promise.min.js"></script>
+    <!--<script language="javascript" src="ie_eventlistner_polyfill.js"></script>-->
+    <script language="javascript">window.allow_firefox_cadesplugin_async=1</script>
+    <script language="javascript" src="js/cadesplugin_api.js"></script>
+    <script language="javascript" src="js/Code.js"></script>
+</head>
+<body>
+<div id="min-width">
+    <div id="container">
+        <table>
+            <tr>
+                <td>
+                    <div id="header">
+                        <a href="/" title="Главная">
+                            <img src="Img/key.png" alt="Главная" class="logo" /></a>
+                        <h1>Проверка создания электронной подписи XML</h1>
+                        <div id="promo"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="mainContent">
+                        <div id="left-col">
+                            <div id="info">
+                                <img id="info_img" src="Img/application_information.png" alt="" />
+                                <div id="info_msg" style="text-align:center;">
+                                    <span id="PlugInEnabledTxt">Плагин не загружен</span>
+                                    <img src="Img/red_dot.png" width="10" height="10" alt="Плагин не загружен" id="PluginEnabledImg"/>
+                                    <br>
+                                    <span id="PlugInVersionTxt" lang="ru"> </span>
+                                    <span id="CSPVersionTxt" lang="ru"> </span>
+                                    <br>
+                                    <span id="CSPNameTxt" lang="ru"> </span>
+                                </div>
+                                <div id="boxdiv" style="display:none">
+                                        <span id="errorarea">
+                                            У вас отсутствуют личные сертификаты. Вы можете
+                                            <a href="#" onClick="Common_RetrieveCertificate();" style="color:#0837ff"> получить</a>
+                                            сертификат от тестового УЦ, предварительно установив
+                                            <a href="/certsrv/certnew.cer?ReqID=CACert&Enc=bin" style="color:#0837ff">корневой сертификат тестового УЦ</a>
+                                            в доверенные.
+                                        </span>
+                                </div>
+                            </div>
+                            <p id="info_msg" name="CertificateTitle">Сертификат:</p>
+                            <div id="item_border" name="CertListBoxToHide">
+                                <select size="4" name="CertListBox" id="CertListBox" style="width:100%;resize:none;border:0;">
+                                </select>
+                            </div>
+
+                            <div id="cert_info" style="display:none">
+                                <h2>Информация о сертификате</h2>
+                                <p class="info_field" id="subject"></p>
+                                <p class="info_field" id="issuer"></p>
+                                <p class="info_field" id="from"></p>
+                                <p class="info_field" id="till"></p>
+                                <p class="info_field" id="provname"></p>
+                                <p class="info_field" id="algorithm"></p>
+                            </div>
+
+                            <p id="info_msg">Данные для подписи:</p>
+                            <div id="item_border">
+                                    <textarea id="DataToSignTxtBox" name="DataToSignTxtBox" style="height:200px;width:100%;resize:none;border:0;">
+                                    </textarea>
+                            </div>
+                            <p></p>
+                            <div class="layout">
+                                <!--<input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="Common_SignCadesXML('CertListBox');" />-->
+                                <input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="testKa();" />
+                            </div>
+                            <p id="info_msg" name="SignatureTitle">Подпись:</p>
+                            <div id="item_border">
+                                    <textarea id="SignatureTxtBox" readonly style="font-size:9pt;height:600px;width:100%;resize:none;border:0;">
+                                    </textarea>
+                                <script language="javascript">
+                                    var txtDataToSign =
+                                        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                        "<!-- \n" +
+                                        " Original XML doc file for sign example. \n" +
+                                        "--> \n" +
+                                        "<Envelope xmlns=\"urn:envelope\">\n" +
+                                        "  <Data>\n" +
+                                        "	Hello, World!\n" +
+                                        "  </Data>\n" +
+                                        "  <Node xml:id=\"nodeID\">\n" +
+                                        "	Hello, Node!\n" +
+                                        "  </Node>\n" +
+                                        "</Envelope>";
+                                    document.getElementById("DataToSignTxtBox").value = txtDataToSign;
+                                    document.getElementById("SignatureTxtBox").innerHTML = "";
+                                    var canPromise = !!window.Promise;
+                                    if(canPromise) {
+                                        cadesplugin.then(function () {
+                                                Common_CheckForPlugIn();
+                                            },
+                                            function(error) {
+                                                document.getElementById('PluginEnabledImg').setAttribute("src", "Img/red_dot.png");
+                                                document.getElementById('PlugInEnabledTxt').innerHTML = error;
+                                            }
+                                        );
+                                    } else {
+                                        window.addEventListener("message", function (event){
+                                                if (event.data == "cadesplugin_loaded") {
+                                                    CheckForPlugIn_NPAPI('isPlugInEnabled');
+                                                } else if(event.data == "cadesplugin_load_error") {
+                                                    document.getElementById('PluginEnabledImg').setAttribute("src", "Img/red_dot.png");
+                                                    document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин не загружен";
+                                                }
+                                            },
+                                            false);
+                                        window.postMessage("cadesplugin_echo_request", "*");
+                                    }
+                                </script>
+                            </div>
+                        </div>
+                        <div id="right-col">
+                            <ul>
+                                <li><a class="active" href="main.html" class="current">О КриптоПро ЭЦП Browser plug-in</a></li>
+                                <li><a class="active" href="http://cpdn.cryptopro.ru/default.asp?url=content/cades/plugin-installation.html">Инструкция по работе с плагином</a></li>
+                                <li><a class="active" href="/products/cades/plugin/get_2_0">Скачать плагин</a></li>
+                            </ul>
+                            <div style="padding: 40px;">
+                                <a href="https://www.surfpatrol.ru/ru/Report" target="_blank">
+                                    <img id="SPcheck" alt="SurfPatrol" src="https://www.surfpatrol.ru/content/images/banner/ru/180x80_default.png" width="180"
+                                         height="80" border="0" /></a>
+                                <script type="text/javascript">
+                                    (function () {
+                                        protocol = (document.location.protocol == 'https:' ? 'https://' : 'http://');
+                                        okImg = protocol + 'www.surfpatrol.ru/content/images/banner/ru/180x80_success.png';
+                                        badImg = protocol + 'www.surfpatrol.ru/content/images/banner/ru/180x80_alarm.png';
+                                        clientCode = '4977594d-b112-4669-ab56-81267a730e89';
+                                        sp = document.createElement('script'); sp.type = 'text/javascript';
+                                        sp.src = protocol + 'www.surfpatrol.ru/scripts/SPimage.min.js';
+                                        s = document.getElementsByTagName('script')[0];
+                                        s.parentNode.insertBefore(sp, s);
+                                    })();
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="footer">
+        © ООО &quot;КРИПТО-ПРО&quot;, 2001-<script>document.write(new Date().getFullYear())</script><br />
+        +7 (495) 995-48-20
+    </div>
+</div>
+</body>
+</html>
