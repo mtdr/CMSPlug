@@ -40,24 +40,12 @@ function include_async_code()
 
 
 function testKa() {
-    // cadesplugin.set_log_level(cadesplugin.LOG_LEVEL_DEBUG);
-    // var canAsync = !!cadesplugin.CreateObjectAsync;
-    // if(canAsync)
-    // {
-    //     // const res = document.createElement("OPTION");
-    //     include_async_code().then(function(){
-    //         // var ew = my_getCertList("CertListBox").next();
-    //         // document.getElementById("CertListBox").options.add(ew);
-    //         // document.getElementById("CertListBox").innerHTML = ew;
-    //         my_getCertList(document.getElementById("CertListBox"));
-    //     })}
-    // else
-    // {
-    //     return CheckForPlugIn_NPAPI();
-    // }
-    // alert(testY().next().value)
-    alert(testY())
-
+    var certList = [];
+    var a = my_getCertList();
+    a.then(function (res) {
+        alert("Hey! " + res[0].info);
+    });
+    return certList;
 }
 
 function Common_RetrieveCertificate()

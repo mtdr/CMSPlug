@@ -1,81 +1,65 @@
-function CertificateAdjuster()
-{
+function CertificateAdjuster() {
 }
 
-CertificateAdjuster.prototype.extract = function(from, what)
-{
+CertificateAdjuster.prototype.extract = function (from, what) {
     certName = "";
 
     var begin = from.indexOf(what);
 
-    if(begin>=0)
-    {
+    if (begin >= 0) {
         var end = from.indexOf(', ', begin);
-        certName = (end<0) ? from.substr(begin) : from.substr(begin, end - begin);
+        certName = (end < 0) ? from.substr(begin) : from.substr(begin, end - begin);
     }
 
     return certName;
 }
 
-CertificateAdjuster.prototype.Print2Digit = function(digit)
-{
-    return (digit<10) ? "0"+digit : digit;
+CertificateAdjuster.prototype.Print2Digit = function (digit) {
+    return (digit < 10) ? "0" + digit : digit;
 }
 
-CertificateAdjuster.prototype.GetCertDate = function(paramDate)
-{
+CertificateAdjuster.prototype.GetCertDate = function (paramDate) {
     var certDate = new Date(paramDate);
-    return this.Print2Digit(certDate.getUTCDate())+"."+this.Print2Digit(certDate.getMonth()+1)+"."+certDate.getFullYear() + " " +
+    return this.Print2Digit(certDate.getUTCDate()) + "." + this.Print2Digit(certDate.getMonth() + 1) + "." + certDate.getFullYear() + " " +
         this.Print2Digit(certDate.getUTCHours()) + ":" + this.Print2Digit(certDate.getUTCMinutes()) + ":" + this.Print2Digit(certDate.getUTCSeconds());
 }
 
-CertificateAdjuster.prototype.GetCertName = function(certSubjectName)
-{
+CertificateAdjuster.prototype.GetCertName = function (certSubjectName) {
     return this.extract(certSubjectName, 'CN=');
 }
 
-CertificateAdjuster.prototype.GetIssuer = function(certIssuerName)
-{
+CertificateAdjuster.prototype.GetIssuer = function (certIssuerName) {
     return this.extract(certIssuerName, 'CN=');
 }
 
-CertificateAdjuster.prototype.GetCertInfoString = function(certSubjectName, certFromDate)
-{
-    return this.extract(certSubjectName,'CN=') + "; Выдан: " + this.GetCertDate(certFromDate);
+CertificateAdjuster.prototype.GetCertInfoString = function (certSubjectName, certFromDate) {
+    return this.extract(certSubjectName, 'CN=') + "; Выдан: " + this.GetCertDate(certFromDate);
 }
 
 function CheckForPlugIn_Async() {
-    function VersionCompare_Async(StringVersion, ObjectVersion)
-    {
-        if(typeof(ObjectVersion) == "string")
+    function VersionCompare_Async(StringVersion, ObjectVersion) {
+        if (typeof(ObjectVersion) == "string")
             return -1;
         var arr = StringVersion.split('.');
         var isActualVersion = true;
 
-        cadesplugin.async_spawn(function *() {
-            if((yield ObjectVersion.MajorVersion) == parseInt(arr[0]))
-            {
-                if((yield ObjectVersion.MinorVersion) == parseInt(arr[1]))
-                {
-                    if((yield ObjectVersion.BuildVersion) == parseInt(arr[2]))
-                    {
+        cadesplugin.async_spawn(function* () {
+            if ((yield ObjectVersion.MajorVersion) == parseInt(arr[0])) {
+                if ((yield ObjectVersion.MinorVersion) == parseInt(arr[1])) {
+                    if ((yield ObjectVersion.BuildVersion) == parseInt(arr[2])) {
                         isActualVersion = true;
                     }
-                    else if((yield ObjectVersion.BuildVersion) < parseInt(arr[2]))
-                    {
+                    else if ((yield ObjectVersion.BuildVersion) < parseInt(arr[2])) {
                         isActualVersion = false;
                     }
-                }else if((yield ObjectVersion.MinorVersion) < parseInt(arr[1]))
-                {
+                } else if ((yield ObjectVersion.MinorVersion) < parseInt(arr[1])) {
                     isActualVersion = false;
                 }
-            }else if((yield ObjectVersion.MajorVersion) < parseInt(arr[0]))
-            {
+            } else if ((yield ObjectVersion.MajorVersion) < parseInt(arr[0])) {
                 isActualVersion = false;
             }
 
-            if(!isActualVersion)
-            {
+            if (!isActualVersion) {
                 document.getElementById('PluginEnabledImg').setAttribute("src", "Img/yellow_dot.png");
                 document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен, но есть более свежая версия.";
             }
@@ -85,12 +69,12 @@ function CheckForPlugIn_Async() {
             var ret = (yield ver.MajorVersion) + "." + (yield ver.MinorVersion) + "." + (yield ver.BuildVersion);
             document.getElementById('CSPVersionTxt').innerHTML = "Версия криптопровайдера: " + ret;
 
-            try
-            {
+            try {
                 var sCSPName = yield oAbout.CSPName(75);
                 document.getElementById('CSPNameTxt').innerHTML = "Криптопровайдер: " + sCSPName;
             }
-            catch(err){}
+            catch (err) {
+            }
             return;
         });
     }
@@ -98,10 +82,10 @@ function CheckForPlugIn_Async() {
     function GetLatestVersion_Async(CurrentPluginVersion) {
         var xmlhttp = getXmlHttp();
         xmlhttp.open("GET", "/sites/default/files/products/cades/latest_2_0.txt", true);
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             var PluginBaseVersion;
             if (xmlhttp.readyState == 4) {
-                if(xmlhttp.status == 200) {
+                if (xmlhttp.status == 200) {
                     PluginBaseVersion = xmlhttp.responseText;
                     VersionCompare_Async(PluginBaseVersion, CurrentPluginVersion)
                 }
@@ -113,14 +97,14 @@ function CheckForPlugIn_Async() {
     document.getElementById('PluginEnabledImg').setAttribute("src", "Img/green_dot.png");
     document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен.";
     var CurrentPluginVersion;
-    cadesplugin.async_spawn(function *() {
+    cadesplugin.async_spawn(function* () {
         var oAbout = yield cadesplugin.CreateObjectAsync("CAdESCOM.About");
         CurrentPluginVersion = yield oAbout.PluginVersion;
         GetLatestVersion_Async(CurrentPluginVersion);
-        if(location.pathname.indexOf("symalgo_sample.html")>=0){
+        if (location.pathname.indexOf("symalgo_sample.html") >= 0) {
             //FillCertList_Async('CertListBox1');
             // FillCertList_Async('CertListBox2');
-        }else {
+        } else {
             //FillCertList_Async('CertListBox');
         }
         // var txtDataToSign = "Hello World";
@@ -129,84 +113,8 @@ function CheckForPlugIn_Async() {
     }); //cadesplugin.async_spawn
 }
 
-// async function my_getCertList(certList) {
-//
-//     try {
-//         var oStore = await cadesplugin.CreateObjectAsync("CAdESCOM.Store");
-//         if (!oStore) {
-//             alert("store failed");
-//             return;
-//         }
-//
-//         await oStore.Open();
-//     }
-//     catch (ex) {
-//         alert("Certificate not found");
-//         return;
-//     }
-//     var certCnt;
-//     var certs;
-//
-//     try {
-//         certs = await oStore.Certificates;
-//         certCnt = await certs.Count;
-//     }
-//     catch (ex) {
-//         var errormes = document.getElementById("boxdiv").style.display = '';
-//         return;
-//     }
-//
-//     if (certCnt == 0) {
-//         var errormes = document.getElementById("boxdiv").style.display = '';
-//         return;
-//     }
-//
-//     for (var i = 1; i <= certCnt; i++) {
-//         var cert;
-//         try {
-//             cert = yield certs.Item(i);
-//         }
-//         catch (ex) {
-//             alert("Ошибка при перечислении сертификатов: " + cadesplugin.getLastError(ex));
-//             return;
-//         }
-//
-//         var oOpt = document.createElement("OPTION");
-//         var dateObj = new Date();
-//         try {
-//             var ValidToDate = new Date((await cert.ValidToDate));
-//             var ValidFromDate = new Date((await cert.ValidFromDate));
-//             var Validator = await cert.IsValid();
-//             var IsValid = await Validator.Result;
-//             if (dateObj < ValidToDate && (await cert.HasPrivateKey()) && IsValid) {
-//                 oOpt.text = new CertificateAdjuster().GetCertInfoString(await cert.SubjectName, ValidFromDate);
-//             }
-//             else {
-//                 continue;
-//             }
-//         }
-//         catch (ex) {
-//             alert("Ошибка при получении свойства SubjectName: " + cadesplugin.getLastError(ex));
-//         }
-//         try {
-//             oOpt.value = yield cert.Thumbprint;
-//         }
-//         catch (ex) {
-//             alert("Ошибка при получении свойства Thumbprint: " + cadesplugin.getLastError(ex));
-//         }
-//
-//         certList.push(oOpt);
-//         // lst.options.add(oOpt);
-//     }
-//
-//     await oStore.Close();
-//     // await certList;
-//
-// //cadesplugin.async_spawn
-// }
-
-function my_getCertList(res) {
-    cadesplugin.async_spawn(function *() {
+function my_getCertList() {
+    return cadesplugin.async_spawn(function* () {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
             if (!oStore) {
@@ -233,14 +141,14 @@ function my_getCertList(res) {
             return;
         }
 
-        if(certCnt == 0)
-        {
+        if (certCnt == 0) {
             var errormes = document.getElementById("boxdiv").style.display = '';
             return;
         }
-
+        let res = [];
         for (var i = 1; i <= certCnt; i++) {
             var cert;
+            var resCert = new Object();
             try {
                 cert = yield certs.Item(i);
             }
@@ -256,8 +164,13 @@ function my_getCertList(res) {
                 var ValidFromDate = new Date((yield cert.ValidFromDate));
                 var Validator = yield cert.IsValid();
                 var IsValid = yield Validator.Result;
-                if(dateObj< ValidToDate && (yield cert.HasPrivateKey()) && IsValid) {
+                resCert.validTo = ValidToDate;
+                resCert.validFrom = ValidFromDate;
+                resCert.isValid = IsValid;
+                if (dateObj < ValidToDate && (yield cert.HasPrivateKey()) && IsValid) {
                     oOpt.text = new CertificateAdjuster().GetCertInfoString(yield cert.SubjectName, ValidFromDate);
+                    resCert.info = oOpt.text;
+                    resCert.SN = yield cert.SubjectName;
                 }
                 else {
                     continue;
@@ -269,29 +182,21 @@ function my_getCertList(res) {
             try {
                 let certPrint = yield cert.Thumbprint;
                 oOpt.value = certPrint;
-                res.push(certPrint);
+                resCert.thumbprint = certPrint;
+                res.push(resCert);
             }
             catch (ex) {
                 alert("Ошибка при получении свойства Thumbprint: " + cadesplugin.getLastError(ex));
             }
-
-            // res.push(oOpt);
         }
 
         yield oStore.Close();
+        return res;
     });//cadesplugin.async_spawn
 }
 
-
-function testY() {
-    var certList = [];
-    var a = my_getCertList(certList);
-    return certList;
-
-}
-
 function FillCertList_Async(lstId) {
-    cadesplugin.async_spawn(function *() {
+    cadesplugin.async_spawn(function* () {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
             if (!oStore) {
@@ -307,8 +212,7 @@ function FillCertList_Async(lstId) {
         }
 
         var lst = document.getElementById(lstId);
-        if(!lst)
-        {
+        if (!lst) {
             return;
         }
         var certCnt;
@@ -323,8 +227,7 @@ function FillCertList_Async(lstId) {
             return;
         }
 
-        if(certCnt == 0)
-        {
+        if (certCnt == 0) {
             var errormes = document.getElementById("boxdiv").style.display = '';
             return;
         }
@@ -346,7 +249,7 @@ function FillCertList_Async(lstId) {
                 var ValidFromDate = new Date((yield cert.ValidFromDate));
                 var Validator = yield cert.IsValid();
                 var IsValid = yield Validator.Result;
-                if(dateObj< ValidToDate && (yield cert.HasPrivateKey()) && IsValid) {
+                if (dateObj < ValidToDate && (yield cert.HasPrivateKey()) && IsValid) {
                     oOpt.text = new CertificateAdjuster().GetCertInfoString(yield cert.SubjectName, ValidFromDate);
                 }
                 else {
@@ -371,7 +274,7 @@ function FillCertList_Async(lstId) {
 }
 
 function CreateSimpleSign_Async() {
-    cadesplugin.async_spawn(function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
             yield oStore.Open();
@@ -402,7 +305,7 @@ function CreateSimpleSign_Async() {
                 var certDate = new Date((yield cert.ValidToDate));
                 var Validator = yield cert.IsValid();
                 var IsValid = yield Validator.Result;
-                if(dateObj< certDate && (yield cert.HasPrivateKey()) && IsValid) {
+                if (dateObj < certDate && (yield cert.HasPrivateKey()) && IsValid) {
                     found = 1;
                     break;
                 }
@@ -423,8 +326,7 @@ function CreateSimpleSign_Async() {
         var dataToSign = document.getElementById("DataToSignTxtBox").value;
         var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
-        try
-        {
+        try {
             FillCertInfo_Async(cert);
             var errormes = "";
             try {
@@ -461,8 +363,7 @@ function CreateSimpleSign_Async() {
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
 
         }
-        catch(err)
-        {
+        catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
@@ -471,7 +372,7 @@ function CreateSimpleSign_Async() {
 
 
 function SignCadesBES_Async(certListBoxId, data, setDisplayData) {
-    cadesplugin.async_spawn(function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         var e = document.getElementById(arg[0]);
         var selectedCertID = e.selectedIndex;
         if (selectedCertID == -1) {
@@ -498,16 +399,14 @@ function SignCadesBES_Async(certListBoxId, data, setDisplayData) {
         var certificate = yield oCerts.Item(1);
 
         var dataToSign = document.getElementById("DataToSignTxtBox").value;
-        if(typeof(data) != 'undefined')
-        {
+        if (typeof(data) != 'undefined') {
             dataToSign = Base64.encode(data);
-        }else {
+        } else {
             dataToSign = Base64.encode(dataToSign);
         }
         var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
-        try
-        {
+        try {
             FillCertInfo_Async(certificate);
             var errormes = "";
             try {
@@ -543,8 +442,7 @@ function SignCadesBES_Async(certListBoxId, data, setDisplayData) {
                 // Данные на подпись ввели
                 yield oSigner.propset_Options(cadesplugin.CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN);
                 yield oSignedData.propset_ContentEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY); //
-                if(typeof(setDisplayData) != 'undefined')
-                {
+                if (typeof(setDisplayData) != 'undefined') {
                     //Set display data flag flag for devices like Rutoken PinPad
                     yield oSignedData.propset_DisplayData(1);
                 }
@@ -561,8 +459,7 @@ function SignCadesBES_Async(certListBoxId, data, setDisplayData) {
             document.getElementById("SignatureTxtBox").innerHTML = Signature;
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
         }
-        catch(err)
-        {
+        catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
@@ -570,7 +467,7 @@ function SignCadesBES_Async(certListBoxId, data, setDisplayData) {
 }
 
 function SignCadesBES_Async_File(certListBoxId) {
-    cadesplugin.async_spawn(function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         var e = document.getElementById(arg[0]);
         var selectedCertID = e.selectedIndex;
         if (selectedCertID == -1) {
@@ -600,8 +497,7 @@ function SignCadesBES_Async_File(certListBoxId) {
 
         var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
-        try
-        {
+        try {
             FillCertInfo_Async(certificate);
             var errormes = "";
             try {
@@ -657,8 +553,7 @@ function SignCadesBES_Async_File(certListBoxId) {
             document.getElementById("SignatureTxtBox").innerHTML = Signature;
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
         }
-        catch(err)
-        {
+        catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
@@ -666,7 +561,7 @@ function SignCadesBES_Async_File(certListBoxId) {
 }
 
 function SignCadesXLong_Async(certListBoxId) {
-    cadesplugin.async_spawn(function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         var e = document.getElementById(arg[0]);
         var selectedCertID = e.selectedIndex;
         if (selectedCertID == -1) {
@@ -696,8 +591,7 @@ function SignCadesXLong_Async(certListBoxId) {
         var dataToSign = document.getElementById("DataToSignTxtBox").value;
         var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
-        try
-        {
+        try {
             FillCertInfo_Async(certificate);
             var errormes = "";
             try {
@@ -716,7 +610,7 @@ function SignCadesXLong_Async(certListBoxId) {
 
             var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
             var CADESCOM_CADES_X_LONG_TYPE_1 = 0x5d;
-            var tspService = document.getElementById("TSPServiceTxtBox").value ;
+            var tspService = document.getElementById("TSPServiceTxtBox").value;
 
             if (dataToSign) {
                 // Данные на подпись ввели
@@ -734,8 +628,7 @@ function SignCadesXLong_Async(certListBoxId) {
             document.getElementById("SignatureTxtBox").innerHTML = Signature;
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
         }
-        catch(err)
-        {
+        catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
@@ -743,7 +636,7 @@ function SignCadesXLong_Async(certListBoxId) {
 }
 
 function SignCadesXML_Async(certListBoxId) {
-    cadesplugin.async_spawn(function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         var e = document.getElementById(arg[0]);
         var selectedCertID = e.selectedIndex;
         if (selectedCertID == -1) {
@@ -773,8 +666,7 @@ function SignCadesXML_Async(certListBoxId) {
         var dataToSign = document.getElementById("DataToSignTxtBox").value;
         var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
-        try
-        {
+        try {
             FillCertInfo_Async(certificate);
             var errormes = "";
             try {
@@ -837,32 +729,30 @@ function SignCadesXML_Async(certListBoxId) {
 
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
         }
-        catch(err)
-        {
+        catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
     }, certListBoxId); //cadesplugin.async_spawn
 }
 
-function FillCertInfo_Async(certificate, certBoxId)
-{
+function FillCertInfo_Async(certificate, certBoxId) {
     var BoxId;
     var field_prefix;
-    if(typeof(certBoxId) == 'undefined')
-    {
+    if (typeof(certBoxId) == 'undefined') {
         BoxId = 'cert_info';
         field_prefix = '';
-    }else {
+    } else {
         BoxId = certBoxId;
         field_prefix = certBoxId;
     }
-    cadesplugin.async_spawn (function*(args) {
+    cadesplugin.async_spawn(function* (args) {
         var Adjust = new CertificateAdjuster();
         document.getElementById(args[1]).style.display = '';
         document.getElementById(args[2] + "subject").innerHTML = "Владелец: <b>" + Adjust.GetCertName(yield args[0].SubjectName) + "<b>";
         document.getElementById(args[2] + "issuer").innerHTML = "Издатель: <b>" + Adjust.GetIssuer(yield args[0].IssuerName) + "<b>";
-        document.getElementById(args[2] + "from").innerHTML = "Выдан: <b>" + Adjust.GetCertDate(yield args[0].ValidFromDate); + "<b>";
+        document.getElementById(args[2] + "from").innerHTML = "Выдан: <b>" + Adjust.GetCertDate(yield args[0].ValidFromDate);
+        +"<b>";
         document.getElementById(args[2] + "till").innerHTML = "Действителен до: <b>" + Adjust.GetCertDate(yield args[0].ValidToDate) + "<b>";
         var pubKey = yield args[0].PublicKey();
         var algo = yield pubKey.Algorithm;
@@ -875,7 +765,7 @@ function FillCertInfo_Async(certificate, certBoxId)
 }
 
 function Encrypt_Async() {
-    cadesplugin.async_spawn (function*() {
+    cadesplugin.async_spawn(function* () {
         document.getElementById("DataEncryptedIV1").innerHTML = "";
         document.getElementById("DataEncryptedIV2").innerHTML = "";
         document.getElementById("DataEncryptedDiversData1").innerHTML = "";
@@ -934,8 +824,7 @@ function Encrypt_Async() {
         var dataToEncr1 = Base64.encode(document.getElementById("DataToEncrTxtBox1").value);
         var dataToEncr2 = Base64.encode(document.getElementById("DataToEncrTxtBox2").value);
 
-        try
-        {
+        try {
             FillCertInfo_Async(certificate1, 'cert_info1');
             FillCertInfo_Async(certificate2, 'cert_info2');
             var errormes = "";
@@ -974,8 +863,7 @@ function Encrypt_Async() {
 
             alert("Данные зашифрованы успешно:");
         }
-        catch(err)
-        {
+        catch (err) {
             alert("Ошибка при шифровании данных:" + err);
             throw("Ошибка при шифровании данных:" + err);
         }
@@ -983,7 +871,7 @@ function Encrypt_Async() {
 }
 
 function Decrypt_Async(certListBoxId) {
-    cadesplugin.async_spawn (function*(arg) {
+    cadesplugin.async_spawn(function* (arg) {
         document.getElementById("DataDecryptedBox1").innerHTML = "";
         document.getElementById("DataDecryptedBox2").innerHTML = "";
 
@@ -1016,14 +904,13 @@ function Decrypt_Async(certListBoxId) {
         var dataToDecr1 = document.getElementById("DataEncryptedBox1").value;
         var dataToDecr2 = document.getElementById("DataEncryptedBox2").value;
         var field;
-        if(certListBoxId == 'CertListBox1')
-            field ="DataEncryptedKey1";
+        if (certListBoxId == 'CertListBox1')
+            field = "DataEncryptedKey1";
         else
-            field ="DataEncryptedKey2";
+            field = "DataEncryptedKey2";
 
         var EncryptedKey = document.getElementById(field).value;
-        try
-        {
+        try {
             FillCertInfo_Async(certificate, 'cert_info_decr');
             var errormes = "";
 
@@ -1055,17 +942,15 @@ function Decrypt_Async(certListBoxId) {
 
             alert("Данные расшифрованы успешно:");
         }
-        catch(err)
-        {
+        catch (err) {
             alert("Ошибка при шифровании данных:" + err);
             throw("Ошибка при шифровании данных:" + err);
         }
     }, certListBoxId);//cadesplugin.async_spawn
 }
 
-function RetrieveCertificate_Async()
-{
-    cadesplugin.async_spawn (function*(arg) {
+function RetrieveCertificate_Async() {
+    cadesplugin.async_spawn(function* (arg) {
         try {
             var PrivateKey = yield cadesplugin.CreateObjectAsync("X509Enrollment.CX509PrivateKey");
         }
@@ -1097,7 +982,7 @@ function RetrieveCertificate_Async()
         }
 
         var CommonName = "Test Certificate";
-        yield DistinguishedName.Encode("CN=\""+CommonName.replace(/"/g, "\"\"")+"\";");
+        yield DistinguishedName.Encode("CN=\"" + CommonName.replace(/"/g, "\"\"") + "\";");
 
         yield CertificateRequestPkcs10.propset_Subject(DistinguishedName);
 
@@ -1136,26 +1021,24 @@ function RetrieveCertificate_Async()
         xmlhttp.open("POST", "https://www.cryptopro.ru/certsrv/certfnsh.asp", true);
         xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         var response;
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             if (xmlhttp.readyState == 4) {
-                if(xmlhttp.status == 200) {
-                    cadesplugin.async_spawn (function*(arg) {
+                if (xmlhttp.status == 200) {
+                    cadesplugin.async_spawn(function* (arg) {
                         var response = arg[0];
                         var cert_data = "";
 
-                        if(!isIE())
-                        {
+                        if (!isIE()) {
                             var start = response.indexOf("var sPKCS7");
                             var end = response.indexOf("sPKCS7 += \"\"") + 13;
                             cert_data = response.substring(start, end);
                         }
-                        else
-                        {
+                        else {
                             var start = response.indexOf("sPKCS7 & \"") + 9;
                             var end = response.indexOf("& vbNewLine\r\n\r\n</Script>");
                             cert_data = response.substring(start, end);
-                            cert_data = cert_data.replace(new RegExp(" & vbNewLine",'g'),";");
-                            cert_data = cert_data.replace(new RegExp("&",'g'),"+");
+                            cert_data = cert_data.replace(new RegExp(" & vbNewLine", 'g'), ";");
+                            cert_data = cert_data.replace(new RegExp("&", 'g'), "+");
                             cert_data = "var sPKCS7=" + cert_data + ";";
                         }
 
@@ -1172,14 +1055,14 @@ function RetrieveCertificate_Async()
                         yield Enroll.Initialize(0x1);
                         yield Enroll.InstallResponse(0, sPKCS7, 0x7, "");
                         var errormes = document.getElementById("boxdiv").style.display = 'none';
-                        if(location.pathname.indexOf("simple")>=0) {
+                        if (location.pathname.indexOf("simple") >= 0) {
                             location.reload();
                         }
-                        else if(location.pathname.indexOf("symalgo_sample.html")>=0){
+                        else if (location.pathname.indexOf("symalgo_sample.html") >= 0) {
                             FillCertList_Async('CertListBox1');
                             FillCertList_Async('CertListBox2');
                         }
-                        else{
+                        else {
                             FillCertList_Async('CertListBox');
                         }
                     }, xmlhttp.responseText);//cadesplugin.async_spawn
@@ -1190,16 +1073,15 @@ function RetrieveCertificate_Async()
     });//cadesplugin.async_spawn
 }
 
-function CheckForPlugInUEC_Async()
-{
+function CheckForPlugInUEC_Async() {
     var isUECCSPInstalled = false;
 
-    cadesplugin.async_spawn(function *() {
+    cadesplugin.async_spawn(function* () {
         var oAbout = yield cadesplugin.CreateObjectAsync("CAdESCOM.About");
 
         var UECCSPVersion;
         var CurrentPluginVersion = yield oAbout.PluginVersion;
-        if( typeof(CurrentPluginVersion) == "undefined")
+        if (typeof(CurrentPluginVersion) == "undefined")
             CurrentPluginVersion = yield oAbout.Version;
 
         var PluginBaseVersion = "1.5.1633";
@@ -1207,50 +1089,39 @@ function CheckForPlugInUEC_Async()
 
         var isActualVersion = true;
 
-        if((yield CurrentPluginVersion.MajorVersion) == parseInt(arr[0]))
-        {
-            if((yield CurrentPluginVersion.MinorVersion) == parseInt(arr[1]))
-            {
-                if((yield CurrentPluginVersion.BuildVersion) == parseInt(arr[2]))
-                {
+        if ((yield CurrentPluginVersion.MajorVersion) == parseInt(arr[0])) {
+            if ((yield CurrentPluginVersion.MinorVersion) == parseInt(arr[1])) {
+                if ((yield CurrentPluginVersion.BuildVersion) == parseInt(arr[2])) {
                     isActualVersion = true;
                 }
-                else if((yield CurrentPluginVersion.BuildVersion) < parseInt(arr[2]))
-                {
+                else if ((yield CurrentPluginVersion.BuildVersion) < parseInt(arr[2])) {
                     isActualVersion = false;
                 }
-            }else if((yield CurrentPluginVersion.MinorVersion) < parseInt(arr[1]))
-            {
+            } else if ((yield CurrentPluginVersion.MinorVersion) < parseInt(arr[1])) {
                 isActualVersion = false;
             }
-        }else if((yield CurrentPluginVersion.MajorVersion) < parseInt(arr[0]))
-        {
+        } else if ((yield CurrentPluginVersion.MajorVersion) < parseInt(arr[0])) {
             isActualVersion = false;
         }
 
-        if(!isActualVersion)
-        {
+        if (!isActualVersion) {
             document.getElementById('PluginEnabledImg').setAttribute("src", "Img/yellow_dot.png");
             document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен, но он не поддерживает УЭК.";
         }
-        else
-        {
+        else {
             document.getElementById('PluginEnabledImg').setAttribute("src", "Img/green_dot.png");
             document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен.";
 
-            try
-            {
+            try {
                 var oUECard = yield cadesplugin.CreateObjectAsync("CAdESCOM.UECard");
                 UECCSPVersion = yield oUECard.ProviderVersion;
                 isUECCSPInstalled = true;
             }
-            catch (err)
-            {
+            catch (err) {
                 UECCSPVersion = "Нет информации";
             }
 
-            if(!isUECCSPInstalled)
-            {
+            if (!isUECCSPInstalled) {
                 document.getElementById('PluginEnabledImg').setAttribute("src", "Img/yellow_dot.png");
                 document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен. Не установлен УЭК CSP.";
             }
@@ -1261,10 +1132,10 @@ function CheckForPlugInUEC_Async()
 }
 
 function FoundCertInStore_Async(cerToFind) {
-    return new Promise(function(resolve, reject){
-        cadesplugin.async_spawn(function *(args) {
+    return new Promise(function (resolve, reject) {
+        cadesplugin.async_spawn(function* (args) {
 
-            if((typeof cerToFind == "undefined") || (cerToFind == null))
+            if ((typeof cerToFind == "undefined") || (cerToFind == null))
                 args[0](false);
 
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.store");
@@ -1284,8 +1155,7 @@ function FoundCertInStore_Async(cerToFind) {
 
             var Certificates = yield oStore.Certificates;
             var certCnt = yield Certificates.Count;
-            if(certCnt==0)
-            {
+            if (certCnt == 0) {
                 oStore.Close();
                 args[0](false);
             }
@@ -1304,14 +1174,14 @@ function FoundCertInStore_Async(cerToFind) {
 
                 try {
                     var Thumbprint = yield cert.Thumbprint;
-                    if(Thumbprint == ThumbprintToFind) {
+                    if (Thumbprint == ThumbprintToFind) {
                         var dateObj = new Date();
                         var ValidToDate = new Date(yield cert.ValidToDate);
                         var HasPrivateKey = yield cert.HasPrivateKey();
                         var IsValid = yield cert.IsValid();
                         IsValid = yield IsValid.Result;
 
-                        if(dateObj<ValidToDate && HasPrivateKey && IsValid) {
+                        if (dateObj < ValidToDate && HasPrivateKey && IsValid) {
                             args[0](true);
                         }
                     }
@@ -1333,29 +1203,26 @@ function FoundCertInStore_Async(cerToFind) {
 }
 
 function getUECCertificate_Async() {
-    return new Promise(function(resolve, reject)
-    {
+    return new Promise(function (resolve, reject) {
         showWaitMessage("Выполняется загрузка сертификата, это может занять несколько секунд...");
-        cadesplugin.async_spawn(function *(args) {
+        cadesplugin.async_spawn(function* (args) {
             try {
                 var oCard = yield cadesplugin.CreateObjectAsync("CAdESCOM.UECard");
                 var oCertTemp = yield oCard.Certificate;
 
-                if(typeof oCertTemp == "undefined")
-                {
+                if (typeof oCertTemp == "undefined") {
                     document.getElementById("cert_info1").style.display = '';
                     document.getElementById("certerror").innerHTML = "Сертификат не найден или отсутствует.";
                     throw "";
                 }
 
-                if(oCertTemp==null)
-                {
+                if (oCertTemp == null) {
                     document.getElementById("cert_info1").style.display = '';
                     document.getElementById("certerror").innerHTML = "Сертификат не найден или отсутствует.";
                     throw "";
                 }
 
-                if(yield FoundCertInStore_Async(oCertTemp)) {
+                if (yield FoundCertInStore_Async(oCertTemp)) {
                     FillCertInfo_Async(oCertTemp);
                     g_oCert = oCertTemp;
                 }
@@ -1368,7 +1235,7 @@ function getUECCertificate_Async() {
             }
             catch (e) {
                 var message = cadesplugin.getLastError(e);
-                if("The action was cancelled by the user. (0x8010006E)" == message) {
+                if ("The action was cancelled by the user. (0x8010006E)" == message) {
                     document.getElementById("cert_info1").style.display = '';
                     document.getElementById("certerror").innerHTML = "Карта не найдена или отсутствует сертификат на карте.";
                 }
@@ -1379,8 +1246,8 @@ function getUECCertificate_Async() {
 }
 
 function createSignature_Async() {
-    return new Promise(function(resolve, reject){
-        cadesplugin.async_spawn(function *(args) {
+    return new Promise(function (resolve, reject) {
+        cadesplugin.async_spawn(function* (args) {
             var signedMessage = "";
             try {
                 var oSigner = yield cadesplugin.CreateObjectAsync("CAdESCOM.CPSigner");
@@ -1410,13 +1277,13 @@ function verifyCert_Async() {
         return;
     }
     createSignature_Async().then(
-        function(signedMessage){
+        function (signedMessage) {
             document.getElementById("SignatureTxtBox").innerHTML = signedMessage;
             var x = document.getElementsByName("SignatureTitle");
             x[0].innerHTML = "Подпись сформирована успешно:";
             removeWaitMessage();
         },
-        function(signedMessage){
+        function (signedMessage) {
             removeWaitMessage();
         }
     );

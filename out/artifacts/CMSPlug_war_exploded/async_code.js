@@ -205,8 +205,8 @@ function CheckForPlugIn_Async() {
 // //cadesplugin.async_spawn
 // }
 
-function my_getCertList(res) {
-    cadesplugin.async_spawn(function *() {
+function my_getCertList() {
+    return cadesplugin.async_spawn(function *() {
         try {
             var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
             if (!oStore) {
@@ -238,9 +238,10 @@ function my_getCertList(res) {
             var errormes = document.getElementById("boxdiv").style.display = '';
             return;
         }
-
+        let res = [];
         for (var i = 1; i <= certCnt; i++) {
             var cert;
+            var resCert = new Object();
             try {
                 cert = yield certs.Item(i);
             }
@@ -256,8 +257,13 @@ function my_getCertList(res) {
                 var ValidFromDate = new Date((yield cert.ValidFromDate));
                 var Validator = yield cert.IsValid();
                 var IsValid = yield Validator.Result;
+                resCert.validTo = ValidToDate;
+                resCert.validFrom = ValidFromDate;
+                resCert.isValid = IsValid;
                 if(dateObj< ValidToDate && (yield cert.HasPrivateKey()) && IsValid) {
                     oOpt.text = new CertificateAdjuster().GetCertInfoString(yield cert.SubjectName, ValidFromDate);
+                    resCert.info = oOpt.text;
+                    resCert.SN = yield cert.SubjectName;
                 }
                 else {
                     continue;
@@ -269,7 +275,9 @@ function my_getCertList(res) {
             try {
                 let certPrint = yield cert.Thumbprint;
                 oOpt.value = certPrint;
-                res.push(certPrint);
+                resCert.thumbprint = certPrint;
+                // res.push(certPrint);
+                res.push(resCert);
             }
             catch (ex) {
                 alert("Ошибка при получении свойства Thumbprint: " + cadesplugin.getLastError(ex));
@@ -279,13 +287,17 @@ function my_getCertList(res) {
         }
 
         yield oStore.Close();
+        return res;
     });//cadesplugin.async_spawn
 }
 
 
 function testY() {
     var certList = [];
-    var a = my_getCertList(certList);
+    var a = my_getCertList();
+    a.then(function (res) {
+        alert("Hey! " + res[0]);
+    });
     return certList;
 
 }
