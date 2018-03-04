@@ -39,11 +39,12 @@ function include_async_code()
 }
 
 
-function testKa() {
+function mainFunc() {
     var certList = [];
     var a = my_getCertList();
     a.then(function (res) {
         alert("Hey! " + res[0].info);
+        certList = res;
     });
     return certList;
 }
