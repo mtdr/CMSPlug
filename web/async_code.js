@@ -195,6 +195,108 @@ function my_getCertList() {
     });//cadesplugin.async_spawn
 }
 
+function My_SignCadesXML(cert) {
+    return cadesplugin.async_spawn(function* () {
+        let resSign = new Object();
+        // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
+        var thumbprint = cert.thumbprint;
+        try {
+            var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
+            yield oStore.Open();
+        } catch (err) {
+            alert('Certificate not found');
+            return;
+        }
+
+        var CAPICOM_CERTIFICATE_FIND_SHA1_HASH = 0;
+        var all_certs = yield oStore.Certificates;
+        var oCerts = yield all_certs.Find(CAPICOM_CERTIFICATE_FIND_SHA1_HASH, thumbprint);
+
+        if ((yield oCerts.Count) == 0) {
+            alert("Certificate not found");
+            return;
+        }
+        var certificate = yield oCerts.Item(1);
+
+        var dataToSign = document.getElementById("DataToSignTxtBox").value;
+
+        // var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
+        var Signature;
+        try {
+            FillCertInfo_Async(certificate);
+            var errormes = "";
+            try {
+                var oSigner = yield cadesplugin.CreateObjectAsync("CAdESCOM.CPSigner");
+            } catch (err) {
+                errormes = "Failed to create CAdESCOM.CPSigner: " + err.number;
+                throw errormes;
+            }
+            if (oSigner) {
+                yield oSigner.propset_Certificate(certificate);
+            }
+            else {
+                errormes = "Failed to create CAdESCOM.CPSigner";
+                throw errormes;
+            }
+
+            var oSignedXML = yield cadesplugin.CreateObjectAsync("CAdESCOM.SignedXML");
+
+            var signMethod = "";
+            var digestMethod = "";
+
+            var pubKey = yield certificate.PublicKey();
+            var algo = yield pubKey.Algorithm;
+            var algoOid = yield algo.Value;
+            if (algoOid == "1.2.643.7.1.1.1.1") {   // алгоритм подписи ГОСТ Р 34.10-2012 с ключом 256 бит
+                signMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-256";
+                digestMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256";
+            }
+            else if (algoOid == "1.2.643.7.1.1.1.2") {   // алгоритм подписи ГОСТ Р 34.10-2012 с ключом 512 бит
+                signMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-512";
+                digestMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-512";
+            }
+            else if (algoOid == "1.2.643.2.2.19") {  // алгоритм ГОСТ Р 34.10-2001
+                signMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102001-gostr3411";
+                digestMethod = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr3411";
+            }
+            else {
+                errormes = "Данная демо страница поддерживает XML подпись сертификатами с алгоритмом ГОСТ Р 34.10-2012, ГОСТ Р 34.10-2001";
+                throw errormes;
+            }
+
+            var CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED = 0;
+
+            if (dataToSign) {
+                // Данные на подпись ввели
+                yield oSignedXML.propset_Content(dataToSign);
+                yield oSignedXML.propset_SignatureType(CADESCOM_XML_SIGNATURE_TYPE_ENVELOPED);
+                yield oSignedXML.propset_SignatureMethod(signMethod);
+                yield oSignedXML.propset_DigestMethod(digestMethod);
+
+                try {
+                    Signature = yield oSignedXML.Sign(oSigner);
+                }
+                catch (err) {
+                    errormes = "Не удалось создать подпись из-за ошибки: " + cadesplugin.getLastError(err);
+                    throw errormes;
+                }
+            }
+
+            resSign.signValue = Signature;
+            // document.getElementById("SignatureTxtBox").innerHTML = Signature;
+            // SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
+            alert( "Подпись сформирована успешно:");
+            return resSign;
+        }
+        catch (err) {
+            // SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
+            resSign.title = "Возникла ошибка:";
+            return err;
+            // document.getElementById("SignatureTxtBox").innerHTML = err;
+        }
+    }); //cadesplugin.async_spawn
+}
+
 function FillCertList_Async(lstId) {
     cadesplugin.async_spawn(function* () {
         try {

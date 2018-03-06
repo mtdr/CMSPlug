@@ -40,9 +40,44 @@ function include_async_code()
 
 
 function mainFunc() {
-    var certList = [];
-    var a = my_getCertList();
-    a.then(function (res) {
+    let certsPromise = my_getCertList();
+    certsPromise.then(function (list) {
+        alert("Hey! " + list[0].info);
+        let certList = list;
+        let signPromise = My_Sign_Support(certList[0]);
+        signPromise.then(function (sign) {
+            return sign;
+        })
+    });
+}
+
+function My_Sign(cert) {
+    let signPromise = My_Sign_Support(cert);
+    signPromise.then(function (res) {
+        return res;
+    })
+
+}
+
+function My_Sign_Support(cert) {
+    var canAsync = !!cadesplugin.CreateObjectAsync;
+    if(canAsync)
+    {
+        include_async_code().then(function(){
+            let chet = My_SignCadesXML(cert);
+            return chet;
+        });
+    }else
+    {
+        alert("Browser is not async")
+        // return SignCadesXML_NPAPI('CertListBox');
+    }
+}
+
+function My_getCertList() {
+    let certList = [];
+    let certsPromise = my_getCertList();
+    certsPromise.then(function (res) {
         alert("Hey! " + res[0].info);
         certList = res;
     });
