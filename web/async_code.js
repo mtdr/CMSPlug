@@ -197,7 +197,6 @@ function my_getCertList() {
 
 function My_SignCadesXML(cert) {
     return cadesplugin.async_spawn(function* () {
-        let resSign = new Object();
         // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
         var thumbprint = cert.thumbprint;
         try {
@@ -207,7 +206,7 @@ function My_SignCadesXML(cert) {
             alert('Certificate not found');
             return;
         }
-
+        let resSign = {};
         var CAPICOM_CERTIFICATE_FIND_SHA1_HASH = 0;
         var all_certs = yield oStore.Certificates;
         var oCerts = yield all_certs.Find(CAPICOM_CERTIFICATE_FIND_SHA1_HASH, thumbprint);
@@ -218,7 +217,8 @@ function My_SignCadesXML(cert) {
         }
         var certificate = yield oCerts.Item(1);
 
-        var dataToSign = document.getElementById("DataToSignTxtBox").value;
+        // var dataToSign = document.getElementById("DataToSignTxtBox").value;
+        var dataToSign = document.getElementById("DataToSignTxtBox").value; // todo  вынести на внешнюю часть
 
         // var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;
