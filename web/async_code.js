@@ -195,7 +195,7 @@ function my_getCertList() {
     });//cadesplugin.async_spawn
 }
 
-function My_SignCadesXML(cert) {
+function My_SignCadesXML(cert, data) {
     return cadesplugin.async_spawn(function* () {
         // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
         var thumbprint = cert.thumbprint;
@@ -218,7 +218,7 @@ function My_SignCadesXML(cert) {
         var certificate = yield oCerts.Item(1);
 
         // var dataToSign = document.getElementById("DataToSignTxtBox").value;
-        var dataToSign = document.getElementById("DataToSignTxtBox").value; // todo  вынести на внешнюю часть
+        var dataToSign = data
 
         // var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;

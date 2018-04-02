@@ -39,17 +39,23 @@ function include_async_code()
 }
 
 
-function mainFunc() {
+function mainFunc(inputData) {
     let certsPromise = my_getCertList();
     certsPromise.then(function (list) {
         alert("Hey! " + list[0].info);
         let certList = list;
-        let signPromise = My_SignCadesXML(certList[0]);
+        // let signPromise = My_SignCadesXML(certList[0], document.getElementById("DataToSignTxtBox").value);
+        let signPromise = My_SignCadesXML(certList[0], inputData);
         signPromise.then(function (sign) {
             alert(sign.signValue);
+            document.getElementById("SignatureTxtBox").innerHTML = sign.signValue;
             // todo check sign
         })
     });
+}
+
+function mainFunc2() {
+    convertFile();
 }
 //
 // function My_Sign(cert) {
