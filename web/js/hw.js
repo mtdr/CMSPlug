@@ -9,7 +9,7 @@ function convertFile() {
         base64 = fileLoadedEvent.target.result;
         // Print data in console
         console.log(base64);
-        mainFunc(base64.substring(0, base64.indexOf(",")))
+        mainFunc(base64.substring(base64.indexOf(",")+1, base64.toString().length))
 
     };
     // Convert data to base64
