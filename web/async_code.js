@@ -195,7 +195,7 @@ function my_getCertList() {
     });//cadesplugin.async_spawn
 }
 
-function My_SignCadesXML(cert, data) {
+function MySignCadesBES_Async_File(cert) {
     return cadesplugin.async_spawn(function* () {
         // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
         var thumbprint = cert.thumbprint;
@@ -218,8 +218,96 @@ function My_SignCadesXML(cert, data) {
         }
         var certificate = yield oCerts.Item(1);
 
+        var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
+        var Signature;
+        try {
+            FillCertInfo_Async(certificate);
+            var errormes = "";
+            try {
+                var oSigner = yield cadesplugin.CreateObjectAsync("CAdESCOM.CPSigner");
+            } catch (err) {
+                errormes = "Failed to create CAdESCOM.CPSigner: " + err.number;
+                throw errormes;
+            }
+            var oSigningTimeAttr = yield cadesplugin.CreateObjectAsync("CADESCOM.CPAttribute");
+
+            var CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME = 0;
+            yield oSigningTimeAttr.propset_Name(CAPICOM_AUTHENTICATED_ATTRIBUTE_SIGNING_TIME);
+            var oTimeNow = new Date();
+            yield oSigningTimeAttr.propset_Value(oTimeNow);
+            var attr = yield oSigner.AuthenticatedAttributes2;
+            yield attr.Add(oSigningTimeAttr);
+
+
+            var oDocumentNameAttr = yield cadesplugin.CreateObjectAsync("CADESCOM.CPAttribute");
+            var CADESCOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_NAME = 1;
+            yield oDocumentNameAttr.propset_Name(CADESCOM_AUTHENTICATED_ATTRIBUTE_DOCUMENT_NAME);
+            yield oDocumentNameAttr.propset_Value("Document Name");
+            yield attr.Add(oDocumentNameAttr);
+
+            if (oSigner) {
+                yield oSigner.propset_Certificate(certificate);
+            }
+            else {
+                errormes = "Failed to create CAdESCOM.CPSigner";
+                throw errormes;
+            }
+
+            var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
+            var CADES_BES = 1;
+
+            var dataToSign = fileContent; // fileContent - объявлен в Code.js
+            if (dataToSign) {
+                // Данные на подпись ввели
+                yield oSignedData.propset_ContentEncoding(1); //CADESCOM_BASE64_TO_BINARY
+                yield oSignedData.propset_Content(dataToSign);
+                yield oSigner.propset_Options(1); //CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN
+                try {
+                    var StartTime = Date.now();
+                    Signature = yield oSignedData.SignCades(oSigner, CADES_BES);
+                    var EndTime = Date.now();
+                    document.getElementsByName('TimeTitle')[0].innerHTML = "Время выполнения: " + (EndTime - StartTime) + " мс";
+                }
+                catch (err) {
+                    errormes = "Не удалось создать подпись из-за ошибки: " + cadesplugin.getLastError(err);
+                    throw errormes;
+                }
+            }
+            // document.getElementById("SignatureTxtBox").innerHTML = Signature;
+            SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
+            resSign.signValue = Signature;
+        }
+        catch (err) {
+            SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
+            document.getElementById("SignatureTxtBox").innerHTML = err;
+        }
+    }, certListBoxId); //cadesplugin.async_spawn
+}
+
+function My_SignCadesXML(cert, data) {
+    return cadesplugin.async_spawn(function* () {
+        // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
+        var thumbprint = cert.thumbprint;
+        try {
+            var oStore = yield cadesplugin.CreateObjectAsync("CAdESCOM.Store");
+            yield oStore.Open();
+        } catch (err) {
+            alert('Certificate not found');
+            return;
+        }
+        let resSign = {};
+        var CAPICOM_CERTIFICATE_FIND_SHA1_HASH = 0;
+        var all_certs = yield oStore.Certificates;
+        var oCerts = yield all_certs.Find(CAPICOM_CERTIFICATE_FIND_SHA1_HASH, thumbprint);
+
+        if ((yield oCerts.Count) == 0) {
+            alert("Certificate not found");
+            return;
+        }
+        var certificate = yield oCerts.Item(1);
+
         // var dataToSign = document.getElementById("DataToSignTxtBox").value;
-        var dataToSign = data
+        var dataToSign = data;
 
         // var SignatureFieldTitle = document.getElementsByName("SignatureTitle");
         var Signature;

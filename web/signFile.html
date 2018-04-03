@@ -93,7 +93,7 @@
                                                         if ('' == fileContent || undefined == fileContent)
                                                         { alert('Выбран пустой файл'); return; }
                                                     else
-                                                        Common_SignCadesBES_File('CertListBox')" />
+                                                        mainFunc()" />
                             </div>
 
                             <p id="info_msg" name="SignatureTitle">Подпись:</p>
@@ -104,7 +104,7 @@
                                     var txtDataToSign = "Hello World";
                                     document.getElementById("SignatureTxtBox").innerHTML = "";
                                     var canPromise = !!window.Promise;
-                                    if(isEdge()) {
+                                    if(false) {
                                         ShowEdgeNotSupported();
                                     } else {
                                         if(canPromise) {
