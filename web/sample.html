@@ -109,7 +109,7 @@
                                 <!--document.getElementById('files').addEventListener('change', handleFileSelect, false);-->
                             <!--</script>-->
 
-                            <input type="file" id="files" name="files[]" />-->
+                            <input type="file" id="files" name="files[]" onchange="convertFile()"/>-->
                             <output id="list"></output>
 
                             <p id="info_msg">Данные для подписи:</p>
@@ -120,7 +120,7 @@
                             <p></p>
                             <div class="layout">
                                 <!--<input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="Common_SignCadesXML('CertListBox');" />-->
-                                <input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="mainFunc2();"/>
+                                <input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="mainFunc();"/>
                             </div>
                             <p id="info_msg" name="SignatureTitle">Подпись:</p>
                             <div id="item_border">

@@ -5,11 +5,14 @@ function convertFile() {
     var fileReader = new FileReader();
     var base64;
     // Onload of file read the file content
-    fileReader.onload = function(fileLoadedEvent) {
+    fileReader.onload = function (fileLoadedEvent) {
         base64 = fileLoadedEvent.target.result;
         // Print data in console
         console.log(base64);
-        mainFunc(base64.substring(base64.indexOf(",")+1, base64.toString().length))
+        document.getElementById("DataToSignTxtBox").innerHTML =
+            base64.substring(base64.indexOf(",") + 1, base64.toString().length);
+
+        // mainFunc(base64.substring(base64.indexOf(",")+1, base64.toString().length))
 
     };
     // Convert data to base64
@@ -29,7 +32,7 @@ function convertToBase64() {
         var fileReader = new FileReader();
         var base64;
         // Onload of file read the file content
-        fileReader.onload = function(fileLoadedEvent) {
+        fileReader.onload = function (fileLoadedEvent) {
             base64 = fileLoadedEvent.target.result;
             // Print data in console
             console.log(base64);
