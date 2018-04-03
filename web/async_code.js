@@ -258,7 +258,7 @@ function MySignCadesBES_Async_File(cert, fileInB64) {
 
             var dataToSign = fileInB64; // fileContent - объявлен в Code.js
             if (dataToSign) {
-                // Данные на подпись ввели
+                // Данные в Base64 на подпись получены
                 yield oSignedData.propset_ContentEncoding(1); //CADESCOM_BASE64_TO_BINARY
                 yield oSignedData.propset_Content(dataToSign);
                 yield oSigner.propset_Options(1); //CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN

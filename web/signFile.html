@@ -72,12 +72,15 @@
                                 <script>
                                     var openFile = function (event) {
                                         fileContent = undefined;
+                                        fileExt = undefined;
                                         var input = event.target;
                                         var reader = new FileReader();
                                         reader.readAsDataURL(input.files[0]);
                                         reader.onload = function () {
                                             var header = ";base64,";
                                             var fileData = reader.result;
+                                            var fileName = input.files[0].name;
+                                            fileExt = fileName.substr(fileName.lastIndexOf('.') + 1);
                                             fileContent = fileData.substr(fileData.indexOf(header) + header.length);
                                         };
                                     };
