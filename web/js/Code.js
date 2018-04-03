@@ -45,7 +45,7 @@ function mainFunc() {
         alert("Hey! " + list[0].info);
         let certList = list;
         // let signPromise = My_SignCadesXML(certList[0], document.getElementById("DataToSignTxtBox").value);
-        let signPromise = MySignCadesBES_Async_File(certList[0]);
+        let signPromise = MySignCadesBES_Async_File(certList[0], fileContent);
         // let signPromise = My_SignCadesXML(certList[0], inputData);
         signPromise.then(function (sign) {
             alert(sign.signValue);
@@ -55,9 +55,6 @@ function mainFunc() {
     });
 }
 
-function mainFunc2() {
-    convertFile();
-}
 //
 // function My_Sign(cert) {
 //     let signPromise = My_Sign_Support(cert);

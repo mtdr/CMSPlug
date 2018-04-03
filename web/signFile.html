@@ -104,8 +104,9 @@
                                     var txtDataToSign = "Hello World";
                                     document.getElementById("SignatureTxtBox").innerHTML = "";
                                     var canPromise = !!window.Promise;
-                                    if(false) {
-                                        ShowEdgeNotSupported();
+                                    if(cadesplugin.isOpera) {
+                                        // ShowEdgeNotSupported();
+                                        alert ("WTF? EDGE?!")
                                     } else {
                                         if(canPromise) {
                                             cadesplugin.then(function () {

@@ -195,7 +195,7 @@ function my_getCertList() {
     });//cadesplugin.async_spawn
 }
 
-function MySignCadesBES_Async_File(cert) {
+function MySignCadesBES_Async_File(cert, fileInB64) {
     return cadesplugin.async_spawn(function* () {
         // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
         var thumbprint = cert.thumbprint;
@@ -256,7 +256,7 @@ function MySignCadesBES_Async_File(cert) {
             var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
             var CADES_BES = 1;
 
-            var dataToSign = fileContent; // fileContent - объявлен в Code.js
+            var dataToSign = fileInB64; // fileContent - объявлен в Code.js
             if (dataToSign) {
                 // Данные на подпись ввели
                 yield oSignedData.propset_ContentEncoding(1); //CADESCOM_BASE64_TO_BINARY
