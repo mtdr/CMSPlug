@@ -276,12 +276,13 @@ function MySignCadesBES_Async_File(cert) {
             // document.getElementById("SignatureTxtBox").innerHTML = Signature;
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
             resSign.signValue = Signature;
+            return resSign;
         }
         catch (err) {
             SignatureFieldTitle[0].innerHTML = "Возникла ошибка:";
             document.getElementById("SignatureTxtBox").innerHTML = err;
         }
-    }, certListBoxId); //cadesplugin.async_spawn
+    }); //cadesplugin.async_spawn
 }
 
 function My_SignCadesXML(cert, data) {
