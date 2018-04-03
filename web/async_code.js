@@ -214,6 +214,7 @@ function My_SignCadesXML(cert, data) {
         if ((yield oCerts.Count) == 0) {
             alert("Certificate not found");
             return;
+
         }
         var certificate = yield oCerts.Item(1);
 
