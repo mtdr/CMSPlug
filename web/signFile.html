@@ -1,0 +1,152 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Пример использования КриптоПро ЭЦП Browser plug-in </title>
+    <meta name="robots" content="noindex, nofollow" charset="utf-8" />
+    <link href="demopage.css" rel="stylesheet" type="text/css" />
+    <script language="javascript" src="js/hw.js"></script>
+    <script language="javascript" src="js/es6-promise.min.js"></script>
+    <!--<script language="javascript" src="ie_eventlistner_polyfill.js"></script>-->
+    <script language="javascript">window.allow_firefox_cadesplugin_async=1</script>
+    <script language="javascript" src="js/cadesplugin_api.js"></script>
+    <script language="javascript" src="js/Code.js"></script>
+</head>
+<body>
+<div id="min-width">
+    <div id="container">
+        <table>
+            <tr>
+                <td>
+                    <div id="header">
+                        <a href="/" title="Главная">
+                            <img src="Img/key.png" alt="Главная" class="logo" /></a>
+                        <h1>Проверка создания электронной подписи CAdES-BES</h1>
+                        <div id="promo"></div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="mainContent">
+                        <div id="left-col">
+                            <div id="info">
+                                <img id="info_img" src="Img/application_information.png" alt="" />
+                                <div id="info_msg" style="text-align:center;">
+                                    <span id="PlugInEnabledTxt">Плагин не загружен</span>
+                                    <img src="Img/red_dot.png" width="10" height="10" alt="Плагин не загружен" id="PluginEnabledImg"/>
+                                    <br>
+                                    <span id="PlugInVersionTxt" lang="ru"> </span>
+                                    <span id="CSPVersionTxt" lang="ru"> </span>
+                                    <br>
+                                    <span id="CSPNameTxt" lang="ru"> </span>
+                                </div>
+                                <div id="boxdiv" style="display:none">
+                                        <span id="errorarea">
+                                            У вас отсутствуют личные сертификаты. Вы можете 
+                                            <a href="#" onClick="Common_RetrieveCertificate();" style="color:#0837ff"> получить</a> 
+                                            сертификат от тестового УЦ, предварительно установив 
+                                            <a href="/certsrv/certnew.cer?ReqID=CACert&Enc=bin" style="color:#0837ff">корневой сертификат тестового УЦ</a> 
+                                            в доверенные.
+                                        </span>
+                                </div>
+                            </div>
+                            <p id="info_msg" name="CertificateTitle">Сертификат:</p>
+                            <div id="item_border" name="CertListBoxToHide">
+                                <select size="4" name="CertListBox" id="CertListBox" style="width:100%;resize:none;border:0;">
+                                </select>
+                            </div>
+
+                            <div id="cert_info" style="display:none">
+                                <h2>Информация о сертификате</h2>
+                                <p class="info_field" id="subject"></p>
+                                <p class="info_field" id="issuer"></p>
+                                <p class="info_field" id="from"></p>
+                                <p class="info_field" id="till"></p>
+                                <p class="info_field" id="provname"></p>
+                                <p class="info_field" id="algorithm"></p>
+                                <p class="info_field" id="status"></p>
+                            </div>
+
+                            <p id="info_msg">Загрузить файл:</p>
+                            <div id="item_border">
+                                <input id="openFileButton" type='file' onchange="openFile(event)" style="width:100%">
+                                <script>
+                                    var openFile = function (event) {
+                                        fileContent = undefined;
+                                        var input = event.target;
+                                        var reader = new FileReader();
+                                        reader.readAsDataURL(input.files[0]);
+                                        reader.onload = function () {
+                                            var header = ";base64,";
+                                            var fileData = reader.result;
+                                            fileContent = fileData.substr(fileData.indexOf(header) + header.length);
+                                        };
+                                    };
+                                </script>
+                            </div>
+                            <p></p>
+                            <div>
+                                <input type='button' value='Подписать файл'
+                                       onclick="
+                                                    if ('' == openFileButton.value)
+                                                        { alert('Файл не выбран.'); return; }
+                                                    else
+                                                        if ('' == fileContent || undefined == fileContent)
+                                                        { alert('Выбран пустой файл'); return; }
+                                                    else
+                                                        Common_SignCadesBES_File('CertListBox')" />
+                            </div>
+
+                            <p id="info_msg" name="SignatureTitle">Подпись:</p>
+                            <div id="item_border">
+                                    <textarea id="SignatureTxtBox" style="font-size:9pt;height:600px;width:100%;resize:none;border:0;">
+                                    </textarea>
+                                <script language="javascript">
+                                    var txtDataToSign = "Hello World";
+                                    document.getElementById("SignatureTxtBox").innerHTML = "";
+                                    var canPromise = !!window.Promise;
+                                    if(isEdge()) {
+                                        ShowEdgeNotSupported();
+                                    } else {
+                                        if(canPromise) {
+                                            cadesplugin.then(function () {
+                                                    Common_CheckForPlugIn();
+                                                },
+                                                function(error) {
+                                                    document.getElementById('PluginEnabledImg').setAttribute("src", "Img/red_dot.png");
+                                                    document.getElementById('PlugInEnabledTxt').innerHTML = error;
+                                                }
+                                            );
+                                        } else {
+                                            window.addEventListener("message", function (event){
+                                                    if (event.data == "cadesplugin_loaded") {
+                                                        CheckForPlugIn_NPAPI();
+                                                    } else if(event.data == "cadesplugin_load_error") {
+                                                        document.getElementById('PluginEnabledImg').setAttribute("src", "Img/red_dot.png");
+                                                        document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин не загружен";
+                                                    }
+                                                },
+                                                false);
+                                            window.postMessage("cadesplugin_echo_request", "*");
+                                        }
+                                    }
+                                </script>
+                            </div>
+                            <p></p>
+                            <p id="info_msg" name ="TimeTitle">Время выполнения: </p>
+                        </div>
+                        <div id="right-col">
+                            <ul>
+                                <li><a class="active" href="main.html" class="current">О КриптоПро ЭЦП Browser plug-in</a></li>
+                                <li><a class="active" href="https://cpdn.cryptopro.ru/default.asp?url=content/cades/plugin.html">Инструкция по работе с плагином</a></li>
+                                <li><a class="active" href="/products/cades/plugin/get_2_0">Скачать плагин</a></li>
+                                <li><a class="active" href="https://cryptopro.ru/products/csp/downloads">Скачать КриптоПро CSP</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
