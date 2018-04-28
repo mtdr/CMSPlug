@@ -64,6 +64,53 @@
                                 <p class="info_field" id="provname"></p>
                                 <p class="info_field" id="algorithm"></p>
                             </div>
+                            <!--Выбор файлов-->
+                            <!--<style>-->
+                                <!--.thumb {-->
+                                    <!--height: 75px;-->
+                                    <!--border: 1px solid #000;-->
+                                    <!--margin: 10px 5px 0 0;-->
+                                <!--}-->
+                            <!--</style>-->
+
+                            <!--<input type="file" id="files" name="files[]" multiple />-->
+                            <!--<output id="list"></output>-->
+
+                            <!--<script>-->
+                                <!--function handleFileSelect(evt) {-->
+                                    <!--var files = evt.target.files; // FileList object-->
+
+                                    <!--// Loop through the FileList and render image files as thumbnails.-->
+                                    <!--for (var i = 0, f; f = files[i]; i++) {-->
+
+                                        <!--// Only process image files.-->
+                                        <!--if (!f.type.match('image.*')) {-->
+                                            <!--continue;-->
+                                        <!--}-->
+
+                                        <!--var reader = new FileReader();-->
+
+                                        <!--// Closure to capture the file information.-->
+                                        <!--reader.onload = (function(theFile) {-->
+                                            <!--return function(e) {-->
+                                                <!--// Render thumbnail.-->
+                                                <!--var span = document.createElement('span');-->
+                                                <!--span.innerHTML = ['<img class="thumb" src="', e.target.result,-->
+                                                    <!--'" title="', escape(theFile.name), '"/>'].join('');-->
+                                                <!--document.getElementById('list').insertBefore(span, null);-->
+                                            <!--};-->
+                                        <!--})(f);-->
+
+                                        <!--// Read in the image file as a data URL.-->
+                                        <!--reader.readAsDataURL(f);-->
+                                    <!--}-->
+                                <!--}-->
+
+                                <!--document.getElementById('files').addEventListener('change', handleFileSelect, false);-->
+                            <!--</script>-->
+
+                            <input type="file" id="files" name="files[]" onchange="convertFile()"/>-->
+                            <output id="list"></output>
 
                             <p id="info_msg">Данные для подписи:</p>
                             <div id="item_border">
@@ -73,7 +120,7 @@
                             <p></p>
                             <div class="layout">
                                 <!--<input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="Common_SignCadesXML('CertListBox');" />-->
-                                <input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="testKa();"/>
+                                <input id="SignBtn" type="button" value="Подписать" name="SignData" onclick="mainFunc();"/>
                             </div>
                             <p id="info_msg" name="SignatureTitle">Подпись:</p>
                             <div id="item_border">

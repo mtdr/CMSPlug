@@ -195,6 +195,23 @@ function my_getCertList() {
     });//cadesplugin.async_spawn
 }
 
+function Verify(sSignedMessage, dataToVerify) {
+    return cadesplugin.async_spawn(function* () {
+        var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
+        try {
+        // Значение свойства ContentEncoding должно быть задано
+        // до заполнения свойства Content
+            oSignedData.ContentEncoding = 1; //CADESCOM_BASE64_TO_BINARY;
+            oSignedData.Content = dataToVerify;
+            yield oSignedData.VerifyCades(sSignedMessage, 1, true);
+        } catch (err) {
+            alert("Failed to verify signature. Error: " + cadesplugin.getLastError(err));
+            return false;
+        }
+        return true;
+    });
+}
+
 function MySignCadesBES_Async_File(cert, fileInB64) {
     return cadesplugin.async_spawn(function* () {
         // var thumbprint = e.options[selectedCertID].value.split(" ").reverse().join("").replace(/\s/g, "").toUpperCase();
@@ -256,16 +273,20 @@ function MySignCadesBES_Async_File(cert, fileInB64) {
             var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
             var CADES_BES = 1;
 
+            var SIGNATURE_TYPE_ENVELOPED = 0;
             var dataToSign = fileInB64; // fileContent - объявлен в Code.js
             if (dataToSign) {
                 // Данные в Base64 на подпись получены
                 yield oSignedData.propset_ContentEncoding(1); //CADESCOM_BASE64_TO_BINARY
                 yield oSignedData.propset_Content(dataToSign);
+                // yield oSignedData.propset_SignatureType(SIGNATURE_TYPE_ENVELOPED);
                 yield oSigner.propset_Options(1); //CAPICOM_CERTIFICATE_INCLUDE_WHOLE_CHAIN
                 try {
                     var StartTime = Date.now();
                     Signature = yield oSignedData.SignCades(oSigner, CADES_BES);
                     var EndTime = Date.now();
+                    var isVerified = yield Verify(Signature, dataToSign);
+                    alert("Sign is " + isVerified);
                     document.getElementsByName('TimeTitle')[0].innerHTML = "Время выполнения: " + (EndTime - StartTime) + " мс";
                 }
                 catch (err) {
@@ -276,6 +297,7 @@ function MySignCadesBES_Async_File(cert, fileInB64) {
             // document.getElementById("SignatureTxtBox").innerHTML = Signature;
             SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
             resSign.signValue = Signature;
+
             return resSign;
         }
         catch (err) {
@@ -375,7 +397,7 @@ function My_SignCadesXML(cert, data) {
             resSign.signValue = Signature;
             // document.getElementById("SignatureTxtBox").innerHTML = Signature;
             // SignatureFieldTitle[0].innerHTML = "Подпись сформирована успешно:";
-            alert( "Подпись сформирована успешно:");
+            alert("Подпись сформирована успешно:");
             return resSign;
         }
         catch (err) {

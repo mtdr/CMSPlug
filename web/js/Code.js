@@ -1,7 +1,8 @@
 var isPluginEnabled = false;
 var fileContent; // Переменная для хранения информации из файла, значение присваивается в cades_bes_file.html
 var fileExt;
-function getXmlHttp(){
+
+function getXmlHttp() {
     var xmlhttp;
     try {
         xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
@@ -12,7 +13,7 @@ function getXmlHttp(){
             xmlhttp = false;
         }
     }
-    if (!xmlhttp && typeof XMLHttpRequest!='undefined') {
+    if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
         xmlhttp = new XMLHttpRequest();
     }
     return xmlhttp;
@@ -21,17 +22,16 @@ function getXmlHttp(){
 var async_code_included = 0;
 var async_Promise;
 var async_resolve;
-function include_async_code()
-{
-    if(async_code_included)
-    {
+
+function include_async_code() {
+    if (async_code_included) {
         return async_Promise;
     }
     var fileref = document.createElement('script');
     fileref.setAttribute("type", "text/javascript");
     fileref.setAttribute("src", "async_code.js");
     document.getElementsByTagName("head")[0].appendChild(fileref);
-    async_Promise = new Promise(function(resolve, reject){
+    async_Promise = new Promise(function (resolve, reject) {
         async_resolve = resolve;
     });
     async_code_included = 1;
@@ -50,6 +50,8 @@ function mainFunc() {
         signPromise.then(function (sign) {
             alert(sign.signValue);
             document.getElementById("SignatureTxtBox").innerHTML = sign.signValue;
+            // download2("sign." + fileExt + ".p7s", sign.signValue);
+            download2("sign.sig", sign.signValue);
             // todo check sign
         })
     });
@@ -89,44 +91,35 @@ function mainFunc() {
 //     return certList;
 // }
 
-function Common_RetrieveCertificate()
-{
+function Common_RetrieveCertificate() {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return RetrieveCertificate_Async();
         });
-    }else
-    {
+    } else {
         return RetrieveCertificate_NPAPI();
     }
 }
 
-function Common_CreateSimpleSign(id)
-{
+function Common_CreateSimpleSign(id) {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return CreateSimpleSign_Async(id);
         });
-    }else
-    {
+    } else {
         return CreateSimpleSign_NPAPI(id);
     }
 }
 
-function Common_SignCadesBES(id, text, setDisplayData)
-{
+function Common_SignCadesBES(id, text, setDisplayData) {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return SignCadesBES_Async(id, text, setDisplayData);
         });
-    }else
-    {
+    } else {
         return SignCadesBES_NPAPI(id, text, setDisplayData);
     }
 }
@@ -142,30 +135,24 @@ function Common_SignCadesBES_File(id) {
     }
 }
 
-function Common_SignCadesXLong(id)
-{
+function Common_SignCadesXLong(id) {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return SignCadesXLong_Async(id);
         });
-    }else
-    {
+    } else {
         return SignCadesXLong_NPAPI(id);
     }
 }
 
-function Common_SignCadesXML(id)
-{
+function Common_SignCadesXML(id) {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return SignCadesXML_Async(id);
         });
-    }else
-    {
+    } else {
         return SignCadesXML_NPAPI(id);
     }
 }
@@ -173,39 +160,33 @@ function Common_SignCadesXML(id)
 function Common_CheckForPlugIn() {
     cadesplugin.set_log_level(cadesplugin.LOG_LEVEL_DEBUG);
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return CheckForPlugIn_Async();
         });
-    }else
-    {
+    } else {
         return CheckForPlugIn_NPAPI();
     }
 }
 
 function Common_Encrypt() {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return Encrypt_Async();
         });
-    }else
-    {
+    } else {
         return Encrypt_NPAPI();
     }
 }
 
 function Common_Decrypt(id) {
     var canAsync = !!cadesplugin.CreateObjectAsync;
-    if(canAsync)
-    {
-        include_async_code().then(function(){
+    if (canAsync) {
+        include_async_code().then(function () {
             return Decrypt_Async(id);
         });
-    }else
-    {
+    } else {
         return Decrypt_NPAPI(id);
     }
 }
@@ -238,15 +219,13 @@ function GetCertificate_NPAPI(certListBoxId) {
     return oCert;
 }
 
-function FillCertInfo_NPAPI(certificate, certBoxID)
-{
+function FillCertInfo_NPAPI(certificate, certBoxID) {
     var BoxID;
     var field_prefix;
-    if(typeof(certBoxID) == 'undefined')
-    {
+    if (typeof(certBoxID) == 'undefined') {
         BoxID = 'cert_info';
         field_prefix = '';
-    }else {
+    } else {
         BoxID = certBoxID;
         field_prefix = certBoxID;
     }
@@ -294,12 +273,11 @@ function MakeCadesBesSign_NPAPI(dataToSign, certObject, setDisplayData, isBase64
     if (dataToSign) {
         // Данные на подпись ввели
         oSignedData.ContentEncoding = 1; //CADESCOM_BASE64_TO_BINARY
-        if(typeof(setDisplayData) != 'undefined')
-        {
+        if (typeof(setDisplayData) != 'undefined') {
             //Set display data flag flag for devices like Rutoken PinPad
             oSignedData.DisplayData = 1;
         }
-        if (typeof(isBase64) == 'undefined'){
+        if (typeof(isBase64) == 'undefined') {
             oSignedData.Content = Base64.encode(dataToSign);
         } else {
             oSignedData.Content = dataToSign;
@@ -432,22 +410,18 @@ function MakeXMLSign_NPAPI(dataToSign, certObject) {
     return sSignedMessage;
 }
 
-function GetSignatureTitleElement()
-{
+function GetSignatureTitleElement() {
     var elementSignatureTitle = null;
     var x = document.getElementsByName("SignatureTitle");
 
-    if(x.length == 0)
-    {
+    if (x.length == 0) {
         elementSignatureTitle = document.getElementById("SignatureTxtBox").parentNode.previousSibling;
 
-        if(elementSignatureTitle.nodeName == "P")
-        {
+        if (elementSignatureTitle.nodeName == "P") {
             return elementSignatureTitle;
         }
     }
-    else
-    {
+    else {
         elementSignatureTitle = x[0];
     }
 
@@ -457,25 +431,20 @@ function GetSignatureTitleElement()
 function SignCadesBES_NPAPI(certListBoxId, data, setDisplayData) {
     var certificate = GetCertificate_NPAPI(certListBoxId);
     var dataToSign = document.getElementById("DataToSignTxtBox").value;
-    if(typeof(data) != 'undefined')
-    {
+    if (typeof(data) != 'undefined') {
         dataToSign = data;
     }
     var x = GetSignatureTitleElement();
-    try
-    {
+    try {
         FillCertInfo_NPAPI(certificate);
         var signature = MakeCadesBesSign_NPAPI(dataToSign, certificate, setDisplayData);
         document.getElementById("SignatureTxtBox").innerHTML = signature;
-        if(x!=null)
-        {
+        if (x != null) {
             x.innerHTML = "Подпись сформирована успешно:";
         }
     }
-    catch(err)
-    {
-        if(x!=null)
-        {
+    catch (err) {
+        if (x != null) {
             x.innerHTML = "Возникла ошибка:";
         }
         document.getElementById("SignatureTxtBox").innerHTML = err;
@@ -509,22 +478,18 @@ function SignCadesBES_NPAPI_File(certListBoxId) {
 function SignCadesXLong_NPAPI(certListBoxId) {
     var certificate = GetCertificate_NPAPI(certListBoxId);
     var dataToSign = document.getElementById("DataToSignTxtBox").value;
-    var tspService = document.getElementById("TSPServiceTxtBox").value ;
+    var tspService = document.getElementById("TSPServiceTxtBox").value;
     var x = GetSignatureTitleElement();
-    try
-    {
+    try {
         FillCertInfo_NPAPI(certificate);
         var signature = MakeCadesXLongSign_NPAPI(dataToSign, tspService, certificate);
         document.getElementById("SignatureTxtBox").innerHTML = signature;
-        if(x!=null)
-        {
+        if (x != null) {
             x.innerHTML = "Подпись сформирована успешно:";
         }
     }
-    catch(err)
-    {
-        if(x!=null)
-        {
+    catch (err) {
+        if (x != null) {
             x.innerHTML = "Возникла ошибка:";
         }
         document.getElementById("SignatureTxtBox").innerHTML = err;
@@ -535,61 +500,49 @@ function SignCadesXML_NPAPI(certListBoxId) {
     var certificate = GetCertificate_NPAPI(certListBoxId);
     var dataToSign = document.getElementById("DataToSignTxtBox").value;
     var x = GetSignatureTitleElement();
-    try
-    {
+    try {
         FillCertInfo_NPAPI(certificate);
         var signature = MakeXMLSign_NPAPI(dataToSign, certificate);
         document.getElementById("SignatureTxtBox").innerHTML = signature;
 
-        if(x!=null)
-        {
+        if (x != null) {
             x.innerHTML = "Подпись сформирована успешно:";
         }
     }
-    catch(err)
-    {
-        if(x!=null)
-        {
+    catch (err) {
+        if (x != null) {
             x.innerHTML = "Возникла ошибка:";
         }
         document.getElementById("SignatureTxtBox").innerHTML = err;
     }
 }
 
-function MakeVersionString(oVer)
-{
+function MakeVersionString(oVer) {
     var strVer;
-    if(typeof(oVer)=="string")
+    if (typeof(oVer) == "string")
         return oVer;
     else
         return oVer.MajorVersion + "." + oVer.MinorVersion + "." + oVer.BuildVersion;
 }
 
 function CheckForPlugIn_NPAPI() {
-    function VersionCompare_NPAPI(StringVersion, ObjectVersion)
-    {
-        if(typeof(ObjectVersion) == "string")
+    function VersionCompare_NPAPI(StringVersion, ObjectVersion) {
+        if (typeof(ObjectVersion) == "string")
             return -1;
         var arr = StringVersion.split('.');
 
-        if(ObjectVersion.MajorVersion == parseInt(arr[0]))
-        {
-            if(ObjectVersion.MinorVersion == parseInt(arr[1]))
-            {
-                if(ObjectVersion.BuildVersion == parseInt(arr[2]))
-                {
+        if (ObjectVersion.MajorVersion == parseInt(arr[0])) {
+            if (ObjectVersion.MinorVersion == parseInt(arr[1])) {
+                if (ObjectVersion.BuildVersion == parseInt(arr[2])) {
                     return 0;
                 }
-                else if(ObjectVersion.BuildVersion < parseInt(arr[2]))
-                {
+                else if (ObjectVersion.BuildVersion < parseInt(arr[2])) {
                     return -1;
                 }
-            }else if(ObjectVersion.MinorVersion < parseInt(arr[1]))
-            {
+            } else if (ObjectVersion.MinorVersion < parseInt(arr[1])) {
                 return -1;
             }
-        }else if(ObjectVersion.MajorVersion < parseInt(arr[0]))
-        {
+        } else if (ObjectVersion.MajorVersion < parseInt(arr[0])) {
             return -1;
         }
 
@@ -618,28 +571,26 @@ function CheckForPlugIn_NPAPI() {
         return sCSPName;
     }
 
-    function ShowCSPVersion_NPAPI(CurrentPluginVersion)
-    {
-        if(typeof(CurrentPluginVersion) != "string")
-        {
+    function ShowCSPVersion_NPAPI(CurrentPluginVersion) {
+        if (typeof(CurrentPluginVersion) != "string") {
             document.getElementById('CSPVersionTxt').innerHTML = "Версия криптопровайдера: " + GetCSPVersion_NPAPI();
         }
         var sCSPName = GetCSPName_NPAPI();
-        if(sCSPName!="")
-        {
+        if (sCSPName != "") {
             document.getElementById('CSPNameTxt').innerHTML = "Криптопровайдер: " + sCSPName;
         }
     }
+
     function GetLatestVersion_NPAPI(CurrentPluginVersion) {
         var xmlhttp = getXmlHttp();
         xmlhttp.open("GET", "/sites/default/files/products/cades/latest_2_0.txt", true);
-        xmlhttp.onreadystatechange = function() {
+        xmlhttp.onreadystatechange = function () {
             var PluginBaseVersion;
             if (xmlhttp.readyState == 4) {
-                if(xmlhttp.status == 200) {
+                if (xmlhttp.status == 200) {
                     PluginBaseVersion = xmlhttp.responseText;
                     if (isPluginWorked) { // плагин работает, объекты создаются
-                        if (VersionCompare_NPAPI(PluginBaseVersion, CurrentPluginVersion)<0) {
+                        if (VersionCompare_NPAPI(PluginBaseVersion, CurrentPluginVersion) < 0) {
                             document.getElementById('PluginEnabledImg').setAttribute("src", "Img/yellow_dot.png");
                             document.getElementById('PlugInEnabledTxt').innerHTML = "Плагин загружен, но есть более свежая версия.";
                         }
@@ -677,7 +628,7 @@ function CheckForPlugIn_NPAPI() {
 
         // Это значение будет проверяться сервером при загрузке демо-страницы
         var CurrentPluginVersion = oAbout.PluginVersion;
-        if( typeof(CurrentPluginVersion) == "undefined")
+        if (typeof(CurrentPluginVersion) == "undefined")
             CurrentPluginVersion = oAbout.Version;
 
         document.getElementById('PluginEnabledImg').setAttribute("src", "Img/green_dot.png");
@@ -698,79 +649,67 @@ function CheckForPlugIn_NPAPI() {
         }
     }
     GetLatestVersion_NPAPI(CurrentPluginVersion);
-    if(location.pathname.indexOf("symalgo_sample.html")>=0){
+    if (location.pathname.indexOf("symalgo_sample.html") >= 0) {
         FillCertList_NPAPI('CertListBox1');
         FillCertList_NPAPI('CertListBox2');
-    } else{
+    } else {
         FillCertList_NPAPI('CertListBox');
     }
 }
 
-function CertificateObj(certObj)
-{
+function CertificateObj(certObj) {
     this.cert = certObj;
     this.certFromDate = new Date(this.cert.ValidFromDate);
     this.certTillDate = new Date(this.cert.ValidToDate);
 }
 
-CertificateObj.prototype.check = function(digit)
-{
-    return (digit<10) ? "0"+digit : digit;
+CertificateObj.prototype.check = function (digit) {
+    return (digit < 10) ? "0" + digit : digit;
 }
 
-CertificateObj.prototype.extract = function(from, what)
-{
+CertificateObj.prototype.extract = function (from, what) {
     certName = "";
 
     var begin = from.indexOf(what);
 
-    if(begin>=0)
-    {
+    if (begin >= 0) {
         var end = from.indexOf(', ', begin);
-        certName = (end<0) ? from.substr(begin) : from.substr(begin, end - begin);
+        certName = (end < 0) ? from.substr(begin) : from.substr(begin, end - begin);
     }
 
     return certName;
 }
 
-CertificateObj.prototype.DateTimePutTogether = function(certDate)
-{
-    return this.check(certDate.getUTCDate())+"."+this.check(certDate.getMonth()+1)+"."+certDate.getFullYear() + " " +
+CertificateObj.prototype.DateTimePutTogether = function (certDate) {
+    return this.check(certDate.getUTCDate()) + "." + this.check(certDate.getMonth() + 1) + "." + certDate.getFullYear() + " " +
         this.check(certDate.getUTCHours()) + ":" + this.check(certDate.getUTCMinutes()) + ":" + this.check(certDate.getUTCSeconds());
 }
 
-CertificateObj.prototype.GetCertString = function()
-{
-    return this.extract(this.cert.SubjectName,'CN=') + "; Выдан: " + this.GetCertFromDate();
+CertificateObj.prototype.GetCertString = function () {
+    return this.extract(this.cert.SubjectName, 'CN=') + "; Выдан: " + this.GetCertFromDate();
 }
 
-CertificateObj.prototype.GetCertFromDate = function()
-{
+CertificateObj.prototype.GetCertFromDate = function () {
     return this.DateTimePutTogether(this.certFromDate);
 }
 
-CertificateObj.prototype.GetCertTillDate = function()
-{
+CertificateObj.prototype.GetCertTillDate = function () {
     return this.DateTimePutTogether(this.certTillDate);
 }
 
-CertificateObj.prototype.GetPubKeyAlgorithm = function()
-{
+CertificateObj.prototype.GetPubKeyAlgorithm = function () {
     return this.cert.PublicKey().Algorithm.FriendlyName;
 }
 
-CertificateObj.prototype.GetCertName = function()
-{
+CertificateObj.prototype.GetCertName = function () {
     return this.extract(this.cert.SubjectName, 'CN=');
 }
 
-CertificateObj.prototype.GetIssuer = function()
-{
+CertificateObj.prototype.GetIssuer = function () {
     return this.extract(this.cert.IssuerName, 'CN=');
 }
 
-CertificateObj.prototype.GetPrivateKeyProviderName = function()
-{
+CertificateObj.prototype.GetPrivateKeyProviderName = function () {
     return this.cert.PrivateKey.ProviderName;
 }
 
@@ -789,7 +728,7 @@ function GetFirstCert_NPAPI() {
 
     try {
         certCnt = oStore.Certificates.Count;
-        if(certCnt==0)
+        if (certCnt == 0)
             throw "Certificate not found";
     }
     catch (ex) {
@@ -798,11 +737,11 @@ function GetFirstCert_NPAPI() {
         return;
     }
 
-    if(certCnt) {
+    if (certCnt) {
         try {
             for (var i = 1; i <= certCnt; i++) {
                 var cert = oStore.Certificates.Item(i);
-                if(dateObj<cert.ValidToDate && cert.HasPrivateKey() && cert.IsValid().Result){
+                if (dateObj < cert.ValidToDate && cert.HasPrivateKey() && cert.IsValid().Result) {
                     return cert;
                 }
             }
@@ -814,26 +753,21 @@ function GetFirstCert_NPAPI() {
     }
 }
 
-function CreateSimpleSign_NPAPI()
-{
+function CreateSimpleSign_NPAPI() {
     oCert = GetFirstCert_NPAPI();
     var x = GetSignatureTitleElement();
-    try
-    {
+    try {
         if (typeof oCert != "undefined") {
             FillCertInfo_NPAPI(oCert);
             var sSignedData = MakeCadesBesSign_NPAPI(txtDataToSign, oCert);
             document.getElementById("SignatureTxtBox").innerHTML = sSignedData;
-            if(x!=null)
-            {
+            if (x != null) {
                 x.innerHTML = "Подпись сформирована успешно:";
             }
         }
     }
-    catch(err)
-    {
-        if(x!=null)
-        {
+    catch (err) {
+        if (x != null) {
             x.innerHTML = "Возникла ошибка:";
         }
         document.getElementById("SignatureTxtBox").innerHTML = err;
@@ -852,7 +786,7 @@ function FillCertList_NPAPI(lstId) {
 
     try {
         var lst = document.getElementById(lstId);
-        if(!lst)
+        if (!lst)
             return;
     }
     catch (ex) {
@@ -863,7 +797,7 @@ function FillCertList_NPAPI(lstId) {
 
     try {
         certCnt = oStore.Certificates.Count;
-        if(certCnt==0)
+        if (certCnt == 0)
             throw "Certificate not found";
     }
     catch (ex) {
@@ -885,7 +819,7 @@ function FillCertList_NPAPI(lstId) {
         var oOpt = document.createElement("OPTION");
         var dateObj = new Date();
         try {
-            if(dateObj<cert.ValidToDate && cert.HasPrivateKey() && cert.IsValid().Result) {
+            if (dateObj < cert.ValidToDate && cert.HasPrivateKey() && cert.IsValid().Result) {
                 var certObj = new CertificateObj(cert);
                 oOpt.text = certObj.GetCertString();
             }
@@ -909,8 +843,7 @@ function FillCertList_NPAPI(lstId) {
     oStore.Close();
 }
 
-function CreateCertRequest_NPAPI()
-{
+function CreateCertRequest_NPAPI() {
     try {
         var PrivateKey = cadesplugin.CreateObject("X509Enrollment.CX509PrivateKey");
     }
@@ -942,7 +875,7 @@ function CreateCertRequest_NPAPI()
     }
 
     var CommonName = "Test Certificate";
-    DistinguishedName.Encode("CN=\""+CommonName.replace(/"/g, "\"\"")+"\";");
+    DistinguishedName.Encode("CN=\"" + CommonName.replace(/"/g, "\"\"") + "\";");
 
     CertificateRequestPkcs10.Subject = DistinguishedName;
 
@@ -973,8 +906,7 @@ function CreateCertRequest_NPAPI()
     return Enroll.CreateRequest(0x1);
 }
 
-function RetrieveCertificate_NPAPI()
-{
+function RetrieveCertificate_NPAPI() {
     var cert_req = CreateCertRequest_NPAPI();
     var params = 'CertRequest=' + encodeURIComponent(cert_req) +
         '&Mode=' + encodeURIComponent('newreq') +
@@ -985,25 +917,23 @@ function RetrieveCertificate_NPAPI()
     xmlhttp.open("POST", "https://www.cryptopro.ru/certsrv/certfnsh.asp", true);
     xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     var response;
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState == 4) {
-            if(xmlhttp.status == 200) {
+            if (xmlhttp.status == 200) {
                 response = xmlhttp.responseText;
                 var cert_data = "";
 
-                if(!isIE())
-                {
+                if (!isIE()) {
                     var start = response.indexOf("var sPKCS7");
                     var end = response.indexOf("sPKCS7 += \"\"") + 13;
                     cert_data = response.substring(start, end);
                 }
-                else
-                {
+                else {
                     var start = response.indexOf("sPKCS7 & \"") + 9;
                     var end = response.indexOf("& vbNewLine\r\n\r\n</Script>");
                     cert_data = response.substring(start, end);
-                    cert_data = cert_data.replace(new RegExp(" & vbNewLine",'g'),";");
-                    cert_data = cert_data.replace(new RegExp("&",'g'),"+");
+                    cert_data = cert_data.replace(new RegExp(" & vbNewLine", 'g'), ";");
+                    cert_data = cert_data.replace(new RegExp("&", 'g'), "+");
                     cert_data = "var sPKCS7=" + cert_data + ";";
                 }
 
@@ -1020,14 +950,14 @@ function RetrieveCertificate_NPAPI()
                 Enroll.Initialize(0x1);
                 Enroll.InstallResponse(0, sPKCS7, 0x7, "");
                 var errormes = document.getElementById("boxdiv").style.display = 'none';
-                if(location.pathname.indexOf("simple")>=0) {
+                if (location.pathname.indexOf("simple") >= 0) {
                     location.reload();
                 }
-                else if(location.pathname.indexOf("symalgo_sample.html")>=0){
+                else if (location.pathname.indexOf("symalgo_sample.html") >= 0) {
                     FillCertList_NPAPI('CertListBox1');
                     FillCertList_NPAPI('CertListBox2');
                 }
-                else{
+                else {
                     FillCertList_NPAPI('CertListBox');
                 }
             }
@@ -1050,21 +980,18 @@ function Encrypt_NPAPI() {
     document.getElementById("DataDecryptedBox2").innerHTML = "";
 
     var certificate1 = GetCertificate_NPAPI('CertListBox1');
-    if(typeof(certificate1) == 'undefined')
-    {
+    if (typeof(certificate1) == 'undefined') {
         return;
     }
     var certificate2 = GetCertificate_NPAPI('CertListBox2');
-    if(typeof(certificate2) == 'undefined')
-    {
+    if (typeof(certificate2) == 'undefined') {
         return;
     }
 
     var dataToEncr1 = Base64.encode(document.getElementById("DataToEncrTxtBox1").value);
     var dataToEncr2 = Base64.encode(document.getElementById("DataToEncrTxtBox2").value);
 
-    try
-    {
+    try {
         FillCertInfo_NPAPI(certificate1, 'cert_info1');
         FillCertInfo_NPAPI(certificate2, 'cert_info2');
         var errormes = "";
@@ -1103,8 +1030,7 @@ function Encrypt_NPAPI() {
 
         alert("Данные зашифрованы успешно:");
     }
-    catch(err)
-    {
+    catch (err) {
         alert("Ошибка при шифровании данных:" + err);
     }
 }
@@ -1115,21 +1041,19 @@ function Decrypt_NPAPI(certListBoxId) {
     document.getElementById("DataDecryptedBox2").value = "";
 
     var certificate = GetCertificate_NPAPI(certListBoxId);
-    if(typeof(certificate) == 'undefined')
-    {
+    if (typeof(certificate) == 'undefined') {
         return;
     }
     var dataToDecr1 = document.getElementById("DataEncryptedBox1").value;
     var dataToDecr2 = document.getElementById("DataEncryptedBox2").value;
     var field;
-    if(certListBoxId == 'CertListBox1')
-        field ="DataEncryptedKey1";
+    if (certListBoxId == 'CertListBox1')
+        field = "DataEncryptedKey1";
     else
-        field ="DataEncryptedKey2";
+        field = "DataEncryptedKey2";
 
     var EncryptedKey = document.getElementById(field).value;
-    try
-    {
+    try {
         FillCertInfo_NPAPI(certificate, 'cert_info_decr');
         var errormes = "";
 
@@ -1158,8 +1082,7 @@ function Decrypt_NPAPI(certListBoxId) {
 
         alert("Данные расшифрованы успешно:");
     }
-    catch(err)
-    {
+    catch (err) {
         alert("Ошибка при шифровании данных:" + err);
     }
 }
@@ -1177,7 +1100,7 @@ var Base64 = {
     _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
 
 
-    encode: function(input) {
+    encode: function (input) {
         var output = "";
         var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
         var i = 0;
@@ -1209,7 +1132,7 @@ var Base64 = {
     },
 
 
-    decode: function(input) {
+    decode: function (input) {
         var output = "";
         var chr1, chr2, chr3;
         var enc1, enc2, enc3, enc4;
@@ -1245,7 +1168,7 @@ var Base64 = {
 
     },
 
-    _utf8_encode: function(string) {
+    _utf8_encode: function (string) {
         string = string.replace(/\r\n/g, "\n");
         var utftext = "";
 
@@ -1271,7 +1194,7 @@ var Base64 = {
         return utftext;
     },
 
-    _utf8_decode: function(utftext) {
+    _utf8_decode: function (utftext) {
         var string = "";
         var i = 0;
         var c = c1 = c2 = 0;
@@ -1302,7 +1225,7 @@ var Base64 = {
     }
 
 }
-var MakePayment = function(sum,date,to){
+var MakePayment = function (sum, date, to) {
     return '<!PINPADFILE UTF8><N>Платежное поручение<V>500'
         + '<N>Сумма<V>' + sum
         + '<N>Дата<V>' + date
@@ -1320,11 +1243,10 @@ var MakePayment = function(sum,date,to){
 };
 
 
-
-function ShowPinPadelogin(){
+function ShowPinPadelogin() {
     var loginvalue = document.getElementById('Login').value;
     var text = '<!PINPADFILE UTF8><N>Авторизация<V><N>Подтвердите авторизацию на сайте<V>'
         + 'cryptopro.ru'
         + '<N>Вход будет произведен с логином<V>' + loginvalue;
-    Common_SignCadesBES('CertListBox',text, 1);
+    Common_SignCadesBES('CertListBox', text, 1);
 }

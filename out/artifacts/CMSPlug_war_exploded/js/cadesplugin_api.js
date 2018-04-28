@@ -717,6 +717,8 @@
     cadesplugin.set = set_pluginObject;
     cadesplugin.set_log_level = set_log_level;
     cadesplugin.getLastError = getLastError;
+    cadesplugin.isEdge = isEdge;
+    cadesplugin.isOpera = isOpera;
 
     if(isNativeMessageSupported())
     {
